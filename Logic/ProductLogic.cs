@@ -1,146 +1,109 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using CodeKY_SD01.Extensions;
-using CodeKY_SD01.Interfaces;
-using CodeKY_SD01.Products;
-using CodeKY_SD01.Validators;
+﻿using CodeKY_SD01.Validators;
 using FluentValidation;
 using FluentValidation.Results;
+using DataLibrary;
+
 
 namespace CodeKY_SD01.Logic
 {
-    public class ProductLogic : IProductLogic
+    public class ProductLogic : IProductRepository
     {
-        // private List<Product> _products = new List<Product>();
-        private Dictionary<string, Product> _products = new Dictionary<string, Product>();
-        private Dictionary<string, CatFood> _catFoods = new Dictionary<string, CatFood>();
-        private Dictionary<string, DogLeash> _dogLeashs = new Dictionary<string, DogLeash>();
+        private readonly ProductContext _repository;
+
+        public string DbPath { get => _repository.DbPath; }
+
+        public ProductLogic()
+        {
+            _repository = new ProductContext();
+
+        }
+        public ProductLogic(ProductContext productRepository)
+        {
+            this._repository = productRepository;
+        }
 
         public void DebugDatabaseInit()
         {
             Console.WriteLine("Creating a Debug Database.");
 
-            AddProduct(new CatFood("Kitten Chow", "A Delicious Bag of Kitten Chow", 9.87m, 65, 4.32, true));
-            AddProduct(new CatFood("Kittendines", "A Delicious Bag of Sardines just for Kittens", 8.87m, 55, 3.32, true));
-            AddProduct(new CatFood("Void's Vittles for Kittens", "An Empty Bag of Kitten Food", 6.66m, 1, 0.01, true));
-            AddProduct(new CatFood("Kitten Kuts", "A Delicious Bag of Choped Steak for Kittens", 19.87m, 15, 2.32, true));
-            AddProduct(new CatFood("Bad Boy Bumble Bees", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5, 1.32, false));
-
-
-            Console.WriteLine();
+            AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65));
+            AddProduct(new ProductEntity("Kittendines", "Catfood", "A Delicious Bag of Sardines just for Kittens", 8.87m, 55));
+            AddProduct(new ProductEntity("Void's Vittles for Kittens", "Catfood", "An Empty Bag of Kitten Food", 6.66m, 1));
+            AddProduct(new ProductEntity("Kitten Kuts", "Catfood", "A Delicious Bag of Choped Steak for Kittens", 19.87m, 5));
+            AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5));
         }
 
-		public Product GetTestProduct()
-		{
-			Console.WriteLine("Creating a Test Product");
-    		return (Product) new CatFood("Soylent Green for Kittens", "Saving the World one Kitten at a Time.", 6.67m, 96, 7.66, true);
-		}
-
-		public void AddProduct(Product product)
+        public void AddProduct(DataLibrary.ProductEntity product)
         {
-			ProductValidator validator = new ProductValidator();
+            ProductValidator validator = new ProductValidator();
             ValidationResult result = validator.Validate(product);
+            if (GetProductByName(product.Name) != null)
+            {
+                result.Errors.Add(new ValidationFailure("Name", "Product with that name already exists", product.Name));
+            }
             if (!result.IsValid)
             {
-                string s = JsonSerializer.Serialize(product, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true });
-                result.Errors.Add(new ValidationFailure("product", s));
-                throw new ValidationException(result.Errors);
+                //string s = JsonSerializer.Serialize(product, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true });
+                //result.Errors.Add(new ValidationFailure("product", s));
+                //throw new ValidationException(result.Errors);
+                foreach (var failure in result.Errors)
+                {
+                    string shortString = failure.AttemptedValue.ToString();
+                    if (shortString.Length > 60)
+                        shortString = shortString.Substring(0, 60);
+                    Console.WriteLine($"Error [{failure.PropertyName} = {shortString}] \n\t {failure.ErrorMessage}");
+                }
+                Console.WriteLine();
+                return;
             }
-
-			_products.Add(product.Name.ToLower(), product);
-
-            if (product is DogLeash)
-            {
-                Console.WriteLine("Adding a Dog Leash");
-                _dogLeashs.Add(product.Name.ToLower(), product as DogLeash);
-            }
-            else if (product is CatFood)
-            {
-                Console.WriteLine("Adding a Cat Food");
-                _catFoods.Add(product.Name.ToLower(), product as CatFood);
-            }
-            else
-            {
-                Console.WriteLine("Adding a Generic Product");
-            }
+            _repository.Add(product);
+            _repository.SaveChanges();
         }
 
-        public List<Product> GetAllProducts()
+        public void UpdateProduct(ProductEntity product)
         {
-            List<Product> _list = new List<Product>();
-            foreach (var item in _products) { _list.Add(item.Value); }
-            return _list;
+            _repository.Products.Update(product);
+            _repository.SaveChanges();
         }
-
-        /// <summary>
-        /// Get a generic List of only In-Stock Products 
-        /// </summary>
-        /// <returns>A generic List of only In-Stock Products</returns>
-        public List<Product> GetOnlyInStockProducts()
+        public void DeleteProduct(int Id)
         {
-            //var query =
-            //	from item in _products
-            //	where item.Value.Quantity > 0
-            //	select item.Value;
-            //var results = query.ToList();
-            //return results;
-
-            return _products.Values.ToList().InStock();
+            _repository.Products.Remove(GetProductById(Id));
+            _repository.SaveChanges();
         }
 
-        public decimal GetTotalPriceOfInventory()
-        {
-            //return _products.Values.ToList().InStock().Sum(item => item.Price * item.Quantity);
-            return GetOnlyInStockProducts().Sum(item => item.Price * item.Quantity);
-        }
+        public IEnumerable<ProductEntity> GetAllProducts() =>
+            _repository.Products.ToList();
 
-        public List<string> GetOnlyInStockProductsByName()
-        {
-            var query =
-                from item in _products
-                where item.Value.Quantity > 0
-                select item.Value.Name;
-            var results = query.ToList();
-            return results;
-        }
+        public IEnumerable<ProductEntity> GetOnlyInStockProducts() => _repository.Products.Where(p => p.Quantity > 0).ToList();
 
-        // Return the dogleash or null
-        public DogLeash GetDogLeashByName(string name)
+        public ProductEntity GetProductByName(string name)
         {
             name = name.ToLower();
-            return _dogLeashs.ContainsKey(name) ? _dogLeashs[name] : null;
+            return GetAllProducts().Where(p => p.Name.ToLower() == name).FirstOrDefault();
         }
 
-		public T GetProductByName <T> (string name) where T : Product
-		{
-			name = name.ToLower();
-                        
-            return (_products.ContainsKey(name) ? _products[name] : null) as T;
-		}
-
-		// Return the catfood or null
-		public CatFood GetCatFoodByName(string name)
+        public ProductEntity GetProductById(int Id)
         {
-            name = name.ToLower();
-            return _catFoods.ContainsKey(name) ? _catFoods[name] : null;
+            return _repository.Products.Find(Id);
         }
 
-
-        public List<Product> SearchProducts(string name)
+        public List<ProductEntity> SearchProducts(string name)
         {
             name = name.ToLower();
-            List<Product> _list = new List<Product>();
-            foreach (var item in _products)
-            {
-                if (item.Key.Contains(name)) { _list.Add(item.Value); }
-            }
-            return _list;
+            return GetAllProducts().Where(p => p.Name.ToLower().Contains(name)).ToList();
+
+        }
+
+        public IEnumerable<ProductEntity> GetAllProductsByName(string name)
+        {
+            name = name.ToLower();
+            return _repository.Products.Where(p => p.Name.ToLower().Contains(name)).ToList();
+        }
+
+        public IEnumerable<ProductEntity> GetAllProductsByCategory(string category)
+        {
+            category = category.ToLower();
+            return _repository.Products.Where(p => p.Category.ToLower().Contains(category)).ToList();
         }
 
     }
