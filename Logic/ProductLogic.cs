@@ -1,29 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿using CodeKY_SD01.Data;
 using CodeKY_SD01.Interfaces;
 using CodeKY_SD01.Validators;
 using FluentValidation;
 using FluentValidation.Results;
-using CodeKY_SD01.Data;
+using System.Text.Json;
 
 
 namespace CodeKY_SD01.Logic
 {
     public class ProductLogic : IProductRepository
     {
-        private readonly IProductRepository _repository;
+        private readonly ProductContext _repository;
 
         public ProductLogic()
         {
-            _repository = new ProductRepository();
+            _repository = new ProductContext();
         }
-        public ProductLogic(IProductRepository productRepository)
+        public ProductLogic(ProductContext productRepository)
         {
             this._repository = productRepository;
         }
@@ -43,43 +36,44 @@ namespace CodeKY_SD01.Logic
         {
             ProductValidator validator = new ProductValidator();
             ValidationResult result = validator.Validate(product);
+            if (GetProductByName(product.Name) != null)
+            {
+                result.Errors.Add(new ValidationFailure("Name", "Product with that name already exists", product.Name));
+            }
             if (!result.IsValid)
             {
-                string s = JsonSerializer.Serialize(product, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true });
-                result.Errors.Add(new ValidationFailure("product", s));
-                throw new ValidationException(result.Errors);
+                //string s = JsonSerializer.Serialize(product, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true });
+                //result.Errors.Add(new ValidationFailure("product", s));
+                //throw new ValidationException(result.Errors);
+                foreach (var failure in result.Errors)
+                {
+                    string shortString = failure.AttemptedValue.ToString();
+                    if (shortString.Length > 60) 
+                        shortString = shortString.Substring(0, 60);
+                    Console.WriteLine($"Error [{failure.PropertyName} = {shortString}] \n\t {failure.ErrorMessage}");
+                }
+                Console.WriteLine();
+                return;
             }
-            _repository.AddProduct(product);
+            _repository.Add(product);
+            _repository.SaveChanges();
         }
 
 
-        public IEnumerable<ProductEntity> GetAllProducts()
-        {
-            return _repository.GetAllProducts().ToList();
-        }
+        public IEnumerable<ProductEntity> GetAllProducts() =>
+            _repository.Products.ToList();
 
-        public IEnumerable<ProductEntity> GetOnlyInStockProducts() => _repository.GetOnlyInStockProducts();
-
-        public decimal GetTotalPriceOfInventory()
-        {
-            //return _products.Values.ToList().InStock().Sum(item => item.Price * item.Quantity);
-            return GetOnlyInStockProducts().Sum(item => item.Price * item.Quantity);
-        }
-
-        public List<string> GetOnlyInStockProductsByName()
-        {
-            return _repository.GetAllProducts().Where(p => p.Quantity > 0).ToList().Select(p => p.Name).ToList();
-        }
+        public IEnumerable<ProductEntity> GetOnlyInStockProducts() => _repository.Products.Where(p => p.Quantity > 0).ToList();
 
         public ProductEntity GetProductByName(string name)
         {
             name = name.ToLower();
-            return _repository.GetAllProducts().Where(p => p.Name.ToLower() == name).FirstOrDefault();
+            return GetAllProducts().Where(p => p.Name.ToLower() == name).FirstOrDefault();
         }
 
         public ProductEntity GetProductById(int Id)
         {
-            return _repository.GetProductById(Id);
+            return _repository.Products.Find(Id);
         }
 
         public List<ProductEntity> SearchProducts(string name)
@@ -89,14 +83,23 @@ namespace CodeKY_SD01.Logic
 
         }
 
-        public void UpdateProduct(ProductEntity product) => _repository.UpdateProduct(product);
+        public void UpdateProduct(ProductEntity product) =>
+            _repository.Products.Update(product);
 
-        public void DeleteProduct(int Id) => _repository.DeleteProduct(Id);
+        public void DeleteProduct(int Id) =>
+            _repository.Products.Remove(GetProductById(Id));
 
-        public IEnumerable<ProductEntity> GetProductsByName(string name) => _repository.GetProductsByName(name);
+        public IEnumerable<ProductEntity> GetProductsByName(string name)
+        {
+            name = name.ToLower();
+            return _repository.Products.Where(p => p.Name.ToLower().Contains(name)).ToList();
+        }
 
-        public IEnumerable<ProductEntity> GetProductsByCategory(string category) => _repository.GetProductsByCategory(category);
-
+        public IEnumerable<ProductEntity> GetProductsByCategory(string category)
+        {
+            category = category.ToLower();
+            return _repository.Products.Where(p => p.Category.ToLower().Contains(category)).ToList();
+        }
 
     }
 }

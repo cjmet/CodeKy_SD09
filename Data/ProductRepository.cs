@@ -1,13 +1,4 @@
-﻿using SQLitePCL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using CodeKY_SD01.Data;
-using CodeKY_SD01.Interfaces;
-using System.Globalization;
+﻿using CodeKY_SD01.Interfaces;
 
 
 
@@ -29,8 +20,6 @@ namespace CodeKY_SD01.Data
         {
             _context.Products.Remove(GetProductById(id));
             _context.SaveChanges();
-
-            String a = "a";
         }
 
         public void UpdateProduct(ProductEntity product)
@@ -60,10 +49,10 @@ namespace CodeKY_SD01.Data
 
         public IEnumerable<ProductEntity> GetOnlyInStockProducts() => _context.Products.Where(p => p.Quantity > 0).ToList();
 
-        public void DebugDatabaseInit()
-        {
-            throw new NotImplementedException();
-        }
+        ProductEntity IProductRepository.GetProductByName(string name)
+            => _context.Products
+            .Where(p => p.Name.ToLower() == name.ToLower()).FirstOrDefault();
+
     }
 }
 
