@@ -9,6 +9,7 @@ namespace CodeKY_SD01.Data
     {
         private readonly ProductContext _context = new ProductContext();
 
+        public string DbPath { get => _context.DbPath; }
 
         public void AddProduct(ProductEntity product)
         {
@@ -35,13 +36,13 @@ namespace CodeKY_SD01.Data
         public IEnumerable<ProductEntity> GetAllProducts() => _context.Products.ToList();
 
         // StringComparison.OrdinalIgnoreCase does not work here
-        public IEnumerable<ProductEntity> GetProductsByCategory(string category)
+        public IEnumerable<ProductEntity> GetAllProductsByCategory(string category)
         {
             category = category.ToLower();
             return _context.Products.Where(p => p.Category.Contains(category)).ToList();
         }
 
-        public IEnumerable<ProductEntity> GetProductsByName(string name)
+        public IEnumerable<ProductEntity> GetAllProductsByName(string name)
         {
             name = name.ToLower();
             return _context.Products.Where(p => p.Name.ToLower().Contains(name)).ToList();

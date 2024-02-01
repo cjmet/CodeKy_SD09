@@ -3,6 +3,7 @@ using CodeKY_SD01.Interfaces;
 using CodeKY_SD01.Validators;
 using FluentValidation;
 using FluentValidation.Results;
+using SQLitePCL;
 using System.Text.Json;
 
 
@@ -12,9 +13,12 @@ namespace CodeKY_SD01.Logic
     {
         private readonly ProductContext _repository;
 
+        public string DbPath { get => _repository.DbPath; } 
+
         public ProductLogic()
         {
             _repository = new ProductContext();
+
         }
         public ProductLogic(ProductContext productRepository)
         {
@@ -89,13 +93,13 @@ namespace CodeKY_SD01.Logic
         public void DeleteProduct(int Id) =>
             _repository.Products.Remove(GetProductById(Id));
 
-        public IEnumerable<ProductEntity> GetProductsByName(string name)
+        public IEnumerable<ProductEntity> GetAllProductsByName(string name)
         {
             name = name.ToLower();
             return _repository.Products.Where(p => p.Name.ToLower().Contains(name)).ToList();
         }
 
-        public IEnumerable<ProductEntity> GetProductsByCategory(string category)
+        public IEnumerable<ProductEntity> GetAllProductsByCategory(string category)
         {
             category = category.ToLower();
             return _repository.Products.Where(p => p.Category.ToLower().Contains(category)).ToList();

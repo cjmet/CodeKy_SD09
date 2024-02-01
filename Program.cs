@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using CodeKY_SD01.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 
 
@@ -39,6 +40,7 @@ namespace CodeKY_SD01
 			//var productLogic = new CodeKY_SD01.Logic.ProductLogic();
 			var services = CreateServiceCollection();
 			var productLogic = services.GetService<IProductRepository>();
+			Debug.WriteLine($"Database Path: {productLogic.DbPath}");
 
 			string userInput;
 			Console.WriteLine("Welcome to our Pet Shop!");
@@ -95,7 +97,7 @@ namespace CodeKY_SD01
 							Console.WriteLine("Enter the product you wish to view.");
 							string userInput2 = Console.ReadLine();
 							userInput2 = userInput2.Trim();
-							var catFood = productLogic.GetProductsByName(userInput2).ToList();
+							var catFood = productLogic.GetAllProductsByName(userInput2).ToList();
 							if (catFood != null && catFood.Count > 0)
 							{
 								foreach (var item in catFood)
