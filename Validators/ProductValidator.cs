@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CodeKY_SD01.Data;
+using DataLibrary;
 
 namespace CodeKY_SD01.Validators
 {

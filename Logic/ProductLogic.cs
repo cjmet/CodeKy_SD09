@@ -1,9 +1,7 @@
-﻿using CodeKY_SD01.Data;
-using CodeKY_SD01.Interfaces;
-using CodeKY_SD01.Validators;
+﻿using CodeKY_SD01.Validators;
 using FluentValidation;
 using FluentValidation.Results;
-using System.Text.Json;
+using DataLibrary;
 
 
 namespace CodeKY_SD01.Logic
@@ -12,9 +10,12 @@ namespace CodeKY_SD01.Logic
     {
         private readonly ProductContext _repository;
 
+        public string DbPath { get => _repository.DbPath; }
+
         public ProductLogic()
         {
             _repository = new ProductContext();
+
         }
         public ProductLogic(ProductContext productRepository)
         {
@@ -32,7 +33,7 @@ namespace CodeKY_SD01.Logic
             AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5));
         }
 
-        public void AddProduct(ProductEntity product)
+        public void AddProduct(DataLibrary.ProductEntity product)
         {
             ProductValidator validator = new ProductValidator();
             ValidationResult result = validator.Validate(product);
@@ -48,7 +49,7 @@ namespace CodeKY_SD01.Logic
                 foreach (var failure in result.Errors)
                 {
                     string shortString = failure.AttemptedValue.ToString();
-                    if (shortString.Length > 60) 
+                    if (shortString.Length > 60)
                         shortString = shortString.Substring(0, 60);
                     Console.WriteLine($"Error [{failure.PropertyName} = {shortString}] \n\t {failure.ErrorMessage}");
                 }
@@ -59,6 +60,16 @@ namespace CodeKY_SD01.Logic
             _repository.SaveChanges();
         }
 
+        public void UpdateProduct(ProductEntity product)
+        {
+            _repository.Products.Update(product);
+            _repository.SaveChanges();
+        }
+        public void DeleteProduct(int Id)
+        {
+            _repository.Products.Remove(GetProductById(Id));
+            _repository.SaveChanges();
+        }
 
         public IEnumerable<ProductEntity> GetAllProducts() =>
             _repository.Products.ToList();
@@ -83,19 +94,13 @@ namespace CodeKY_SD01.Logic
 
         }
 
-        public void UpdateProduct(ProductEntity product) =>
-            _repository.Products.Update(product);
-
-        public void DeleteProduct(int Id) =>
-            _repository.Products.Remove(GetProductById(Id));
-
-        public IEnumerable<ProductEntity> GetProductsByName(string name)
+        public IEnumerable<ProductEntity> GetAllProductsByName(string name)
         {
             name = name.ToLower();
             return _repository.Products.Where(p => p.Name.ToLower().Contains(name)).ToList();
         }
 
-        public IEnumerable<ProductEntity> GetProductsByCategory(string category)
+        public IEnumerable<ProductEntity> GetAllProductsByCategory(string category)
         {
             category = category.ToLower();
             return _repository.Products.Where(p => p.Category.ToLower().Contains(category)).ToList();
