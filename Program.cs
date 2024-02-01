@@ -3,6 +3,7 @@ using CodeKY_SD01.Logic;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using CodeKY_SD01.Data;
+using Microsoft.EntityFrameworkCore;
 
 
 
@@ -11,20 +12,35 @@ namespace CodeKY_SD01
 {
 	internal class Program
 	{
+
+        // <SD01>
         //static IServiceProvider CreateServiceCollection()
         //{
-        //    return new ServiceCollection().AddTransient<IProductRepository,ProductLogic> ().BuildServiceProvider();
+        //    return new ServiceCollection().AddTransient<IProductLogic, ProductLogic>().BuildServiceProvider();
         //}
+		// </SD01>
 
-        static void Main(string[] args)
+        static IServiceProvider CreateServiceCollection()
+        {
+            return new ServiceCollection()
+				.AddTransient<IProductRepository,ProductLogic> ()
+				.AddTransient<ProductContext>()
+				.BuildServiceProvider();
+		}
+
+		static void Main(string[] args)
 		{
 
-			var productLogic = new CodeKY_SD01.Logic.ProductLogic(); 
-            // var services = CreateServiceCollection();
-            // var productLogic = services.GetService<IProductLogic>();		// Second Version
-            // var productLogic = services.GetService<IProductRepository>();	// Current Version
+			// <SD01>
+			//var services = CreateServiceCollection();
+			//var productLogic = services.GetService<IProductLogic>();
+			// </SD01>
 
-            string userInput;
+			//var productLogic = new CodeKY_SD01.Logic.ProductLogic();
+			var services = CreateServiceCollection();
+			var productLogic = services.GetService<IProductRepository>();
+
+			string userInput;
 			Console.WriteLine("Welcome to our Pet Shop!");
 			Console.WriteLine("------------------------");
 			Console.WriteLine();
@@ -66,8 +82,12 @@ namespace CodeKY_SD01
                             product.Price = decimal.TryParse(Console.ReadLine(), out decimal price) ? price : 0;
 							Console.WriteLine("Enter the Product Quantity:");
                             product.Quantity = int.TryParse(Console.ReadLine(), out int quantity) ? quantity : 0;
+                            Console.WriteLine();
                             productLogic.AddProduct(product);
-                            Console.WriteLine("Product Added.");
+							if (product.Id > 0)
+								Console.WriteLine("Product Added.");
+							else 
+								Console.WriteLine("Product Not Added.");
 						}
 						break;
 					case "2":
@@ -129,8 +149,9 @@ namespace CodeKY_SD01
 						
 					case "9":
 						{
-                            productLogic.DebugDatabaseInit();
-                            break;
+							var tmp = new ProductLogic();
+							tmp.DebugDatabaseInit();
+							break;
                         }
 	
 					case "exit": Console.WriteLine("exit"); break;

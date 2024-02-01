@@ -16,10 +16,10 @@ namespace CodeKY_SD01.Interfaces
         public void UpdateProduct(ProductEntity product);
         // public void SaveChanges();
         public ProductEntity GetProductById(int id);
+        public ProductEntity GetProductByName(string name);
         public IEnumerable<ProductEntity> GetAllProducts();
         public IEnumerable<ProductEntity> GetProductsByCategory(string category);
         public IEnumerable<ProductEntity> GetProductsByName(string name);
         public IEnumerable<ProductEntity> GetOnlyInStockProducts();
-        public void DebugDatabaseInit();
     }
 }
