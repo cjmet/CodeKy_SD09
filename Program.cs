@@ -1,34 +1,30 @@
 ﻿using CodeKY_SD01.Interfaces;
 using CodeKY_SD01.Logic;
-using CodeKY_SD01.Products;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
 using System.Text.Json;
+using CodeKY_SD01.Data;
 
 
-// q: what does solid stand for in OO programming
-// a: Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
-
-// q: what is a class
-// a: a class is a blueprint for an object
 
 
 namespace CodeKY_SD01
 {
 	internal class Program
 	{
-		static void Main(string[] args)
+        //static IServiceProvider CreateServiceCollection()
+        //{
+        //    return new ServiceCollection().AddTransient<IProductRepository,ProductLogic> ().BuildServiceProvider();
+        //}
+
+        static void Main(string[] args)
 		{
 
-			var services = CreateServiceCollection();
-			//var productLogic = new ProductLogic();
-			var productLogic = services.GetService<IProductLogic>();
+			var productLogic = new CodeKY_SD01.Logic.ProductLogic(); 
+            // var services = CreateServiceCollection();
+            // var productLogic = services.GetService<IProductLogic>();		// Second Version
+            // var productLogic = services.GetService<IProductRepository>();	// Current Version
 
-			#if DEBUG
-			productLogic.DebugDatabaseInit();
-			#endif
-
-			string userInput;
+            string userInput;
 			Console.WriteLine("Welcome to our Pet Shop!");
 			Console.WriteLine("------------------------");
 			Console.WriteLine();
@@ -38,20 +34,14 @@ namespace CodeKY_SD01
 				Console.WriteLine();
 				Console.WriteLine();
 				Console.WriteLine("----------------------------------------------------------");
-				Console.WriteLine("Press 1 to add a product.");
-				Console.WriteLine("Press 2 to view a Cat Food by name.");
+				Console.WriteLine("Press 1:  ADD       add a product.");
+				Console.WriteLine("Press 2:  FIND      find a product by name.");
+				Console.WriteLine("Press 3:  LIST      list all products.");
+				Console.WriteLine("Press 4:  IN-STOCK  list only in-stock products.");
 				Console.WriteLine();
-				Console.WriteLine("Press 8 to search a list of products for a keyword.");
-				Console.WriteLine("Press 9 to view a list of products.");
-				Console.WriteLine();
-				Console.WriteLine("Press 10 to view a list of In-Stock products by Name.");
-				Console.WriteLine("Press 11 to view a list of In-Stock products by Product.");
-				Console.WriteLine();
-				Console.WriteLine("Press 20 to view a total value of In-Stock inventory");
-				Console.WriteLine("Press 21 to import a JSON encoded product");
-				Console.WriteLine("Press 22 to find any product by name");
-				Console.WriteLine();
-				Console.WriteLine("Type 'exit' to quit.");
+                Console.WriteLine("Press 9:  TEST		Add Test Data to the Database.");
+                Console.WriteLine();
+				                Console.WriteLine("Type 'exit' to quit.");
 
 				userInput = Console.ReadLine();
 				userInput = userInput.Trim();
@@ -64,47 +54,37 @@ namespace CodeKY_SD01
 				{
 					case "1":
 						Console.WriteLine("Adding a new product.");
-						CatFood catChow = new CatFood();
-						catChow.AddCatFood();
-
-						productLogic.AddProduct(catChow);
-
-#if DEBUG
-						Console.WriteLine(JsonSerializer.Serialize(catChow, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
-#endif
-
-						Console.WriteLine("Product Added.");
+						{
+							ProductEntity product = new ProductEntity();
+                            Console.WriteLine("Enter the Product Name:");
+                            product.Name = Console.ReadLine();
+                            Console.WriteLine("Enter the Product Category:");
+                            product.Category = Console.ReadLine();
+                            Console.WriteLine("Enter the Product Description:");
+                            product.Description = Console.ReadLine();
+                            Console.WriteLine("Enter the Product Price:");
+                            product.Price = decimal.TryParse(Console.ReadLine(), out decimal price) ? price : 0;
+							Console.WriteLine("Enter the Product Quantity:");
+                            product.Quantity = int.TryParse(Console.ReadLine(), out int quantity) ? quantity : 0;
+                            productLogic.AddProduct(product);
+                            Console.WriteLine("Product Added.");
+						}
 						break;
 					case "2":
 						{
-							Console.WriteLine("Enter the Cat Food you wish to view.");
+							Console.WriteLine("Enter the product you wish to view.");
 							string userInput2 = Console.ReadLine();
 							userInput2 = userInput2.Trim();
-							CatFood catFood = productLogic.GetProductByName<CatFood>(userInput2);
-							if (catFood != null)
+							var catFood = productLogic.GetProductsByName(userInput2).ToList();
+							if (catFood != null && catFood.Count > 0)
 							{
-								Console.WriteLine(JsonSerializer.Serialize(catFood, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
-							}
-							else
-							{
-								Console.WriteLine($"Product '{userInput2}' was not found.");
-							}
-							break;
-						}
-					case "8":
-						{
-							Console.WriteLine("Enter the Key Word");
-							string userInput2 = Console.ReadLine();
-							userInput2 = userInput2.Trim();
-							List<Product> results = productLogic.SearchProducts(userInput2);
-							if (results.Count > 0)
-							{
-								Console.WriteLine();
-								foreach (var result in results)
+								foreach (var item in catFood)
 								{
-									Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
+                                    // Console.WriteLine(JsonSerializer.Serialize(item, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
+                                    PrintLineItem(item);
+                                    Console.WriteLine($"     \"{ item.Description}\"");
+									Console.WriteLine();
 								}
-								Console.WriteLine($"{results.Count} Items Found.");
 							}
 							else
 							{
@@ -112,16 +92,16 @@ namespace CodeKY_SD01
 							}
 							break;
 						}
-					case "9":
+					case "3":
 						{
-							var list = productLogic.GetAllProducts();
+							var list = productLogic.GetAllProducts().ToList();
 							if (list != null && list.Count > 0)
 							{
 								Console.WriteLine("The Following is a list of all Items.");
-								foreach (var item in productLogic.GetAllProducts())
+								foreach (var item in list)
 								{
-									Console.WriteLine(item.Name);
-								}
+                                    PrintLineItem(item);
+                                }
 							}
 							else
 							{
@@ -129,16 +109,16 @@ namespace CodeKY_SD01
 							}
 							break;
 						}
-					case "10":
+					case "4":
 						{
-							var list = productLogic.GetOnlyInStockProductsByName();
+							var list = productLogic.GetOnlyInStockProducts().ToList();
 							if (list != null && list.Count > 0)
 							{
 								Console.WriteLine("The Following is a list of all In-Stock Items.");
 								foreach (var item in list)
 								{
-									Console.WriteLine(item);
-								}
+									PrintLineItem(item);
+                                }
 							}
 							else
 							{
@@ -146,69 +126,13 @@ namespace CodeKY_SD01
 							}
 							break;
 						}
-					case "11":
+						
+					case "9":
 						{
-							var list = productLogic.GetOnlyInStockProducts();
-							if (list != null && list.Count > 0)
-							{
-								Console.WriteLine("The Following is a list of all In-Stock Items.");
-								Console.WriteLine();
-								foreach (var result in list)
-								{
-									Console.WriteLine(JsonSerializer.Serialize(result, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
-								}
-								Console.WriteLine($"{list.Count} Items Found.");
-							}
-							else
-							{
-								Console.WriteLine("Item List is Empty");
-							}
-							break;
-						}
-					case "20":
-						{
-							var total = productLogic.GetTotalPriceOfInventory();
-							Console.WriteLine($"The Total Value of all In-Stock Items is: {total}");
-							break;
-						}
-					case "21":
-						{
-							Console.WriteLine("Importing a JSON Encoded Product.");
-							Console.WriteLine("Paste JSON code here:");
-							Product product;
-							string jsonInput;
-							Boolean TEST=false;
-							if (TEST)
-							{
-								product = productLogic.GetTestProduct();
-								jsonInput = JsonSerializer.Serialize(product, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true });
-							}
-							else
-							{
-								jsonInput = Console.ReadLine();
-							}
-							product = JsonSerializer.Deserialize<Product>(jsonInput, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true });
-							productLogic.AddProduct(product);
-							
-							Console.WriteLine("Product Added.");
-							break;
-						}
-					case "22":
-						{
-							Console.WriteLine("Enter the Product you wish to view.");
-							string userInput2 = Console.ReadLine();
-							userInput2 = userInput2.Trim();
-							Product product = productLogic.GetProductByName<Product>(userInput2);
-							if (product != null)
-							{
-								Console.WriteLine(JsonSerializer.Serialize(product, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
-							}
-							else
-							{
-								Console.WriteLine($"Product '{userInput2}' was not found.");
-							}
-							break;
-						}
+                            productLogic.DebugDatabaseInit();
+                            break;
+                        }
+	
 					case "exit": Console.WriteLine("exit"); break;
 					case "quit": Console.WriteLine("quit"); break;
 					case "": Console.WriteLine("<empty>"); break;
@@ -222,10 +146,12 @@ namespace CodeKY_SD01
 				|| userInput.Equals("", StringComparison.OrdinalIgnoreCase)
 				));
 		}
-		static IServiceProvider CreateServiceCollection()
-		{
-			return new ServiceCollection().AddTransient<IProductLogic, ProductLogic>().BuildServiceProvider();
-		}
-	}
+
+        static void PrintLineItem(ProductEntity item)
+        {
+            Console.WriteLine($"{item.Id,3}: {item.Name,-30} - {item.Category,15} - Qty: {item.Quantity,2} - {item.Price:C}");
+        }
+
+    }
 
 }

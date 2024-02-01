@@ -1,19 +1,19 @@
-﻿using CodeKY_SD01.Products;
-using FluentValidation;
+﻿using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CodeKY_SD01.Data;
 
 namespace CodeKY_SD01.Validators
 {
-	public class ProductValidator : AbstractValidator<Product>
+	public class ProductValidator : AbstractValidator<ProductEntity>
 	{
 		public ProductValidator() { 
-			RuleFor(product => product.Name).NotEmpty();
-			RuleFor(product => product.Price).GreaterThan(0);
-			RuleFor(product => product.Quantity).GreaterThan(0);
+			RuleFor(product => product.Name).MinimumLength(3);
+			RuleFor(product => product.Price).GreaterThanOrEqualTo(0);
+			RuleFor(product => product.Quantity).GreaterThanOrEqualTo(0);
 			RuleFor(product => product.Description).MinimumLength(10).When(product => product.Description !=  null);
 
 		}
