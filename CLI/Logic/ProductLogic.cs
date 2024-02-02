@@ -1,7 +1,7 @@
 ﻿using CodeKY_SD01.Validators;
+using DataLibrary;
 using FluentValidation;
 using FluentValidation.Results;
-using DataLibrary;
 
 
 namespace CodeKY_SD01.Logic
