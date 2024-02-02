@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeKySD09", "CodeKySD09.csproj", "{5D0746B7-2C91-4866-AF99-D171B38220AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeKySD09", "CLI\CodeKySD09.csproj", "{5D0746B7-2C91-4866-AF99-D171B38220AF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataLibrary", "DataLibrary\DataLibrary.csproj", "{B2D7BD87-0590-4FA2-B94F-DD2C2F1FF1D7}"
 EndProject

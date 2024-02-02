@@ -7,6 +7,8 @@ namespace DataLibrary
     {
         private readonly ProductContext _context = new ProductContext();
 
+        
+
         public string DbPath { get => _context.DbPath; }
 
         public void AddProduct(ProductEntity product)
@@ -48,10 +50,15 @@ namespace DataLibrary
 
         public IEnumerable<ProductEntity> GetOnlyInStockProducts() => _context.Products.Where(p => p.Quantity > 0).ToList();
 
-        ProductEntity IProductRepository.GetProductByName(string name)
+        public ProductEntity GetProductByName(string name)
             => _context.Products
             .Where(p => p.Name.ToLower() == name.ToLower()).FirstOrDefault();
 
+        public bool VerboseSQL
+        {
+            get => _context.VerboseSQL;
+            set => _context.VerboseSQL = value;
+        }
     }
 }
 
