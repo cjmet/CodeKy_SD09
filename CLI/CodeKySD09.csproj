@@ -9,8 +9,11 @@
 
   <ItemGroup>
     <Compile Remove="DataLibrary\**" />
+    <Compile Remove="Migrations\**" />
     <EmbeddedResource Remove="DataLibrary\**" />
+    <EmbeddedResource Remove="Migrations\**" />
     <None Remove="DataLibrary\**" />
+    <None Remove="Migrations\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,11 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="DataLibrary\DataLibrary.csproj" />
+    <ProjectReference Include="..\DataLibrary\DataLibrary.csproj" />
   </ItemGroup>
 
 </Project>
