@@ -13,6 +13,7 @@
         public IEnumerable<ProductEntity> GetAllProductsByCategory(string category);
         public IEnumerable<ProductEntity> GetAllProductsByName(string name);
         public IEnumerable<ProductEntity> GetOnlyInStockProducts();
+        public bool VerboseSQL { get; set; }
     }
 
     public class ProductEntity

@@ -1,6 +1,5 @@
 ﻿using CodeKY_SD01.Logic;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
 using DataLibrary;
 
 
@@ -10,13 +9,6 @@ namespace CodeKY_SD01
 {
     internal class Program
     {
-
-        // <SD01>
-        //static IServiceProvider CreateServiceCollection()
-        //{
-        //    return new ServiceCollection().AddTransient<IProductLogic, ProductLogic>().BuildServiceProvider();
-        //}
-        // </SD01>
 
         static IServiceProvider CreateServiceCollection()
         {
@@ -29,24 +21,18 @@ namespace CodeKY_SD01
         static void Main(string[] args)
         {
 
-            // <SD01>
-            //var services = CreateServiceCollection();
-            //var productLogic = services.GetService<IProductLogic>();
-            // </SD01>
-
-            //var productLogic = new CodeKY_SD01.Logic.ProductLogic();
             var services = CreateServiceCollection();
             var productLogic = services.GetService<IProductRepository>();
-            Debug.WriteLine($"Database Path: {productLogic.DbPath}");
+            Console.WriteLine($"Database Path: {productLogic.DbPath}\n");
 
             string userInput;
             Console.WriteLine("Welcome to our Pet Shop!");
             Console.WriteLine("------------------------");
-            Console.WriteLine();
 
+            bool _exitProgram = false;
+            string _lastInput = "false";
             do
             {
-                Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine("----------------------------------------------------------");
                 Console.WriteLine("Press 1:  ADD       add a product.");
@@ -55,19 +41,25 @@ namespace CodeKY_SD01
                 Console.WriteLine("Press 4:  IN-STOCK  list only in-stock products.");
                 Console.WriteLine();
                 Console.WriteLine("Press 8:  DELETE    delete product by id.");
-                Console.WriteLine("Press 9:  TEST		Add Test Data to the Database.");
+                Console.WriteLine("Press 9:  TEST      Add Test Data to the Database.");
+                Console.WriteLine("Press 0:  VERBOSE   Toggle VerboseSQL Mode.");
                 Console.WriteLine();
                 Console.WriteLine("Type 'exit' to quit.");
 
                 userInput = Console.ReadLine();
                 userInput = userInput.Trim();
                 userInput = userInput.ToLower();
-                Console.WriteLine();
-                Console.WriteLine("-=========================================================");
-                Console.WriteLine();
+
+                Console.Clear();
+                Console.WriteLine($"User Input: {userInput}");
 
                 switch (userInput)
                 {
+                    case "0":
+                        productLogic.VerboseSQL = !productLogic.VerboseSQL;
+                        Console.WriteLine($"VerboseSQL is now {productLogic.VerboseSQL}");
+                        PrintDivider();
+                        break;
                     case "1":
                         Console.WriteLine("Adding a new product.");
                         {
@@ -84,6 +76,7 @@ namespace CodeKY_SD01
                             product.Quantity = int.TryParse(Console.ReadLine(), out int quantity) ? quantity : 0;
                             Console.WriteLine();
                             productLogic.AddProduct(product);
+                            PrintDivider();
                             if (product.Id > 0)
                                 Console.WriteLine("Product Added.");
                             else
@@ -94,16 +87,19 @@ namespace CodeKY_SD01
                         {
                             Console.WriteLine("Enter the product you wish to view.");
                             string userInput2 = Console.ReadLine();
+                            Console.WriteLine();
                             userInput2 = userInput2.Trim();
                             var catFood = productLogic.GetAllProductsByName(userInput2).ToList();
+                            PrintDivider();
                             if (catFood != null && catFood.Count > 0)
                             {
+                                int flag = 0;
                                 foreach (var item in catFood)
                                 {
                                     // Console.WriteLine(JsonSerializer.Serialize(item, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
+                                    if (flag++ > 0) Console.WriteLine();
                                     PrintLineItem(item);
                                     Console.WriteLine($"     \"{item.Description}\"");
-                                    Console.WriteLine();
                                 }
                             }
                             else
@@ -114,7 +110,9 @@ namespace CodeKY_SD01
                         }
                     case "3":
                         {
+                            Console.WriteLine();
                             var list = productLogic.GetAllProducts().ToList();
+                            PrintDivider();
                             if (list != null && list.Count > 0)
                             {
                                 Console.WriteLine("The Following is a list of all Items.");
@@ -131,7 +129,9 @@ namespace CodeKY_SD01
                         }
                     case "4":
                         {
+                            Console.WriteLine();
                             var list = productLogic.GetOnlyInStockProducts().ToList();
+                            PrintDivider();
                             if (list != null && list.Count > 0)
                             {
                                 Console.WriteLine("The Following is a list of all In-Stock Items.");
@@ -152,13 +152,16 @@ namespace CodeKY_SD01
                             Console.WriteLine("Enter the product id you wish to delete.");
                             string userInput2 = Console.ReadLine();
                             userInput2 = userInput2.Trim();
+                            Console.WriteLine();
                             if (int.TryParse(userInput2, out int id) && productLogic.GetProductById(id) != null)
                             {
                                 productLogic.DeleteProduct(id);
+                                PrintDivider();
                                 Console.WriteLine($"Product with id {id} has been deleted.");
                             }
                             else
                             {
+                                PrintDivider();
                                 Console.WriteLine($"Product with id {userInput2} was not found.");
                             }
                             break;
@@ -167,26 +170,35 @@ namespace CodeKY_SD01
                         {
                             var tmp = new ProductLogic();
                             tmp.DebugDatabaseInit();
+                            PrintDivider();
                             break;
                         }
 
-                    case "exit": Console.WriteLine("exit"); break;
-                    case "quit": Console.WriteLine("quit"); break;
-                    case "": Console.WriteLine("<empty>"); break;
+                    case "exit": Console.WriteLine("exit"); _exitProgram = true; break;
+                    case "quit": Console.WriteLine("quit"); _exitProgram = true; break;
+                    case "":
+                        {
+                            Console.WriteLine("<empty>\n");
+                            PrintDivider();
+                            if (_lastInput == "") _exitProgram = true;
+                            else Console.WriteLine("Press <Enter> Again To Exit.");
+                            break;
+                        }
                     default: Console.WriteLine($"I do not recognize '{userInput}' as a valid input."); break;
                 }
-
-                Console.WriteLine();
-
-            } while (!(userInput.Equals("exit", StringComparison.OrdinalIgnoreCase)
-                || userInput.Equals("quit", StringComparison.OrdinalIgnoreCase)
-                || userInput.Equals("", StringComparison.OrdinalIgnoreCase)
-                ));
+                _lastInput = userInput;
+            } while (!_exitProgram);
         }
 
         static void PrintLineItem(ProductEntity item)
         {
             Console.WriteLine($"{item.Id,3}: {item.Name,-30} - {item.Category,15} - Qty: {item.Quantity,2} - {item.Price:C}");
+        }
+
+        static void PrintDivider()
+        {
+            Console.WriteLine("==========================================================");
+            Console.WriteLine();
         }
 
     }

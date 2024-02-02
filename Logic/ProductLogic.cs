@@ -43,9 +43,6 @@ namespace CodeKY_SD01.Logic
             }
             if (!result.IsValid)
             {
-                //string s = JsonSerializer.Serialize(product, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true });
-                //result.Errors.Add(new ValidationFailure("product", s));
-                //throw new ValidationException(result.Errors);
                 foreach (var failure in result.Errors)
                 {
                     string shortString = failure.AttemptedValue.ToString();
@@ -104,6 +101,12 @@ namespace CodeKY_SD01.Logic
         {
             category = category.ToLower();
             return _repository.Products.Where(p => p.Category.ToLower().Contains(category)).ToList();
+        }
+
+        public bool VerboseSQL
+        {
+            get => _repository.VerboseSQL;
+            set => _repository.VerboseSQL = value;
         }
 
     }
