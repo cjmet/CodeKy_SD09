@@ -7,6 +7,8 @@ namespace DataLibrary
     {
         private readonly ProductContext _context = new ProductContext();
 
+        
+
         public string DbPath { get => _context.DbPath; }
 
         public void AddProduct(ProductEntity product)

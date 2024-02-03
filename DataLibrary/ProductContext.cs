@@ -7,6 +7,7 @@ namespace DataLibrary
     public class ProductContext : DbContext
     {
         public DbSet<ProductEntity> Products { get; set; }
+        public DbSet<OrderEntity> Orders { get; set; }
         public string DbPath { get; private set; }
         public bool VerboseSQL { get; set; } = false;
 
@@ -39,10 +40,17 @@ namespace DataLibrary
             DbPath = Path.Join(path, "product.db");
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ProductEntity>()
+                .HasMany(p => p.Orders)
+                .WithMany(o => o.Products);
+            modelBuilder.Entity<OrderEntity>()
+                .HasMany(o => o.Products)
+                .WithMany(p => p.Orders);
+        }
+
+
     }
-
-
-
-
 
 }
