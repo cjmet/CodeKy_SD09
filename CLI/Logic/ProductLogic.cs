@@ -67,9 +67,9 @@ namespace CodeKY_SD01.Logic
 
         public void AddOrder(OrderEntity order)
         {
-            _repository.Products.UpdateRange(order.Products);
+            //_repository.Products.UpdateRange(order.Products);
             _repository.Orders.Add(order);
-            _repository.SaveChanges();
+            _repository.SaveChanges(); // cjm
         }
 
         public void UpdateProduct(ProductEntity product)
@@ -79,6 +79,7 @@ namespace CodeKY_SD01.Logic
         }
         public void DeleteProduct(int Id)
         {
+            //_repository.Orders.UpdateRange(GetProductById(Id).Orders);
             _repository.Products.Remove(GetProductById(Id));
             _repository.SaveChanges();
         }
@@ -96,7 +97,10 @@ namespace CodeKY_SD01.Logic
 
         public ProductEntity GetProductById(int Id)
         {
-            return _repository.Products.Find(Id);
+            var product = _repository.Products.Find(Id);
+            if (product != null) _repository.Entry(product).Collection(p => p.Orders).Load();
+
+            return product;
         }
 
         public List<ProductEntity> SearchProducts(string name)
@@ -133,6 +137,7 @@ namespace CodeKY_SD01.Logic
 
         public void DeleteOrder(int id)
         {
+            //_repository.Products.UpdateRange(GetOrderById(id).Products);
             _repository.Orders.Remove(GetOrderById(id));
             _repository.SaveChanges();
         }

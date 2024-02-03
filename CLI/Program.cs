@@ -43,7 +43,7 @@ namespace CodeKY_SD01
                 Console.Write($"{"11: Add      add a product.",-42}");
                 Console.WriteLine($"{"21: Add      add an order."}");
 
-                Console.Write($"{"12: Find     find product by name.",-42}");
+                Console.Write($"{"12: Find     find product by name or id.",-42}");
                 Console.WriteLine($"{"22: Find     find order by id."}");
 
                 Console.Write($"{"13: List     list all products.",-42}");
@@ -70,7 +70,7 @@ namespace CodeKY_SD01
                 userInput = userInput.ToLower();
 
                 Console.Clear();
-                Console.WriteLine($"User Input: {userInput}");
+                //Console.WriteLine($"User Input: {userInput}");
 
                 switch (userInput)
                 {
@@ -89,12 +89,17 @@ namespace CodeKY_SD01
                             Console.WriteLine("Enter the Product Quantity:");
                             product.Quantity = int.TryParse(Console.ReadLine(), out int quantity) ? quantity : 0;
                             Console.WriteLine();
+
+                            // Results
+                            Console.Clear();
                             productLogic.AddProduct(product);
-                            PrintDivider();
                             if (product.Id > 0)
                                 Console.WriteLine("Product Added.");
                             else
                                 Console.WriteLine("Product Not Added.");
+                            PrintDivider();
+                            PrintProductList(productLogic);
+                            //Console.WriteLine();
                         }
                         break;
                     case "12":
@@ -103,17 +108,33 @@ namespace CodeKY_SD01
                             string userInput2 = Console.ReadLine();
                             Console.WriteLine();
                             userInput2 = userInput2.Trim();
-                            var catFood = productLogic.GetAllProductsByName(userInput2).ToList();
+
+                            List<ProductEntity> products = new List<ProductEntity>();
+                            int productId = 0;
+                            ProductEntity product = null;
+                            if (int.TryParse(userInput2, out productId))
+                                product = productLogic.GetProductById(productId);
+                            else
+                                products =
+                                    productLogic.GetAllProductsByName(userInput2).ToList();
+                            if (product != null) products.Add(product);
+
+                            //Results
+                            Console.Clear();
+                            Console.WriteLine($"Searching for \"{userInput2}\":");
                             PrintDivider();
-                            if (catFood != null && catFood.Count > 0)
+                            if (products != null && products.Count > 0)
                             {
                                 int flag = 0;
-                                foreach (var item in catFood)
+                                foreach (var item in products)
                                 {
-                                    // Console.WriteLine(JsonSerializer.Serialize(item, new JsonSerializerOptions { IncludeFields = true, WriteIndented = true }));
+                                    if (item != null && item.Id != null)
+                                        productLogic.GetProductById(item.Id); // force load of orders
                                     if (flag++ > 0) Console.WriteLine();
                                     PrintLineItem(item);
                                     Console.WriteLine($"     \"{item.Description}\"");
+                                    PrintItemOrders(item);
+                                    Console.WriteLine();
                                 }
                             }
                             else
@@ -124,31 +145,20 @@ namespace CodeKY_SD01
                         }
                     case "13":
                         {
-                            Console.WriteLine();
-                            var list = productLogic.GetAllProducts().ToList();
+                            Console.Clear();
+                            Console.WriteLine("The Following is a list of all Item:");
                             PrintDivider();
-                            if (list != null && list.Count > 0)
-                            {
-                                Console.WriteLine("The Following is a list of all Items:\n");
-                                foreach (var item in list)
-                                {
-                                    PrintLineItem(item);
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("Item List is Empty");
-                            }
+                            PrintProductList(productLogic);
                             break;
                         }
                     case "14":
                         {
-                            Console.WriteLine();
+                            Console.Clear();
                             var list = productLogic.GetOnlyInStockProducts().ToList();
+                            Console.WriteLine("The Following is a list of all In-Stock Items.");
                             PrintDivider();
                             if (list != null && list.Count > 0)
                             {
-                                Console.WriteLine("The Following is a list of all In-Stock Items.");
                                 foreach (var item in list)
                                 {
                                     PrintLineItem(item);
@@ -166,55 +176,44 @@ namespace CodeKY_SD01
                             Console.WriteLine("Enter the product id you wish to delete.");
                             string userInput2 = Console.ReadLine();
                             userInput2 = userInput2.Trim();
-                            Console.WriteLine();
+                            Console.Clear();
                             if (int.TryParse(userInput2, out int id) && productLogic.GetProductById(id) != null)
                             {
                                 productLogic.DeleteProduct(id);
-                                PrintDivider();
                                 Console.WriteLine($"Product with id {id} has been deleted.");
                             }
                             else
                             {
-                                PrintDivider();
-                                Console.WriteLine($"Product with id {userInput2} was not found.");
+                                Console.WriteLine($"Product with id [{userInput2}] was not found.");
                             }
+                            PrintDivider();
+                            PrintProductList(productLogic);
                             break;
                         }
 
                     // ================================================================
 
                     case "21":
+                        Console.Clear();
                         Console.WriteLine("Adding a new order.\n");
                         {
                             OrderEntity order = new OrderEntity();
                             order.OrderDate = DateTime.Now;
                             order.Products = new List<ProductEntity>();
-                            
+
                             var productList = productLogic.GetAllProducts().ToList();
                             ProductEntity product = null;
                             string userInput2;
 
                             do
                             {
-                                // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                // +++++++++++++
                                 PrintDivider();
-                                if (productList != null && productList.Count > 0)
-                                {
-                                    Console.WriteLine("Items:\n");
-                                    foreach (var item in productList)
-                                    {
-                                        PrintLineItem(item);
-                                    }
-                                }
+                                PrintProductList(productLogic);
                                 PrintDivider();
-                                // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                                Console.WriteLine($"Order {order.Id}   Date: {order.OrderDate}");
-                                foreach (var item in order.Products)
-                                {
-                                    PrintLineItem(item);
-                                }
+                                PrintOrderItem(order);
                                 PrintDivider();
-                                // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                // +++++++++++++
 
                                 Console.WriteLine("Input ProductId, ProductName, Submit or <Enter>:");
                                 userInput2 = Console.ReadLine();
@@ -246,13 +245,19 @@ namespace CodeKY_SD01
                                 if (item.Orders == null) item.Orders = new List<OrderEntity>();
                                 item.Orders.Add(order);
                             }
-                            if (order.Products.Count > 0) orderLogic.AddOrder(order);
-
+                            if (order.Products.Count > 0)
+                            {
+                                PrintOrderItem(order);
+                                orderLogic.AddOrder(order);  // cjm 
+                            }
                             if (order.Id > 0)
                                 Console.WriteLine("Order Added.");
                             else
                                 Console.WriteLine("Order Not Added.");
+                            PrintDivider();
+                            PrintOrderList(orderLogic);
                         }
+
                         break;
 
                     case "22":  // find order by id
@@ -274,38 +279,24 @@ namespace CodeKY_SD01
                             else
                             {
                                 PrintDivider();
-                                Console.WriteLine($"Order with id {userInput2} was not found.");
+                                Console.WriteLine($"Order with id [{userInput2}] was not found.");
                             }
                             break;
                         }
                     case "23":  // list all orders
                         {
-                            Console.WriteLine();
-                            var list = orderLogic.GetAllOrders().ToList();
+                            Console.Clear();
+                            Console.WriteLine("The Following is a list of all Orders:\n");
                             PrintDivider();
-                            if (list != null && list.Count > 0)
-                            {
-                                Console.WriteLine("The Following is a list of all Orders:\n");
-                                foreach (var item in list)
-                                {
-                                    orderLogic.GetOrderById(item.Id); // force load of products
-                                    Console.WriteLine($"Order {item.Id} - {item.OrderDate}");
-                                    foreach (var product in item.Products)
-                                    {
-                                        PrintLineItem(product);
-                                    }
-                                    Console.WriteLine();
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("Order List is Empty");
-                            }
+                            PrintOrderList(orderLogic);
                             break;
                         }
                     case "24":  // unimplemented
                         {
+                            Console.Clear();
                             Console.WriteLine("Unimplemented");
+                            PrintDivider();
+                            PrintOrderList(orderLogic);
                             break;
                         }
                     case "25":  // delete order by id
@@ -313,18 +304,18 @@ namespace CodeKY_SD01
                             Console.WriteLine("Enter the order id you wish to delete.");
                             string userInput2 = Console.ReadLine();
                             userInput2 = userInput2.Trim();
-                            Console.WriteLine();
+                            Console.Clear();
                             if (int.TryParse(userInput2, out int id) && orderLogic.GetOrderById(id) != null)
                             {
                                 orderLogic.DeleteOrder(id);
-                                PrintDivider();
                                 Console.WriteLine($"Order with id {id} has been deleted.");
                             }
                             else
                             {
-                                PrintDivider();
-                                Console.WriteLine($"Order with id {userInput2} was not found.");
+                                Console.WriteLine($"Order with id [{userInput2}] was not found.");
                             }
+                            PrintDivider();
+                            PrintOrderList(orderLogic);
                             break;
                         }
                     // ================================================================
@@ -365,6 +356,69 @@ namespace CodeKY_SD01
         static void PrintDivider()
         {
             Console.WriteLine("==========================================================");
+            Console.WriteLine();
+        }
+
+        static void PrintItemOrders(ProductEntity item)
+        {
+            if (item == null) return;
+            if (item.Orders != null && item.Orders.Count > 0)
+            {
+                Console.Write($"     Orders: ");
+                bool flag = false;
+                foreach (var order in item.Orders)
+                {
+                    if (flag) Console.Write(", ");
+                    Console.Write($"[{order.Id,3}]");
+                    flag = true;
+                }
+            }
+        }
+
+        static void PrintProductList(IProductRepository? productLogic)
+        {
+            var list = productLogic.GetAllProducts().ToList();
+            if (list != null && list.Count > 0)
+            {
+                foreach (var item in list)
+                {
+                    PrintLineItem(item);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Item List is Empty");
+            }
+        }
+
+
+        static void PrintOrderList(IOrderRepository? orderLogic)
+        {
+            // PrintOrderList(orderLogic);
+            var list = orderLogic.GetAllOrders().ToList();
+            if (list != null && list.Count > 0)
+            {
+                foreach (var item in list)
+                {
+                    orderLogic.GetOrderById(item.Id); // force load of products
+                    PrintOrderItem(item);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Order List is Empty");
+            }
+            // /PrintOrderList(orderLogic);
+        }
+
+        static void PrintOrderItem(OrderEntity item)
+        {
+            Console.WriteLine($"Order {item.Id} - {item.OrderDate}");
+            if (item.Products != null)
+                foreach (var product in item.Products)
+                {
+                    PrintLineItem(product);
+                }
             Console.WriteLine();
         }
 

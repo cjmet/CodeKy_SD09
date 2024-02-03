@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLibrary.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    [Migration("20240202224449_SD10_Migration")]
-    partial class SD10_Migration
+    [Migration("20240203071114_SD10")]
+    partial class SD10
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,7 +20,7 @@ namespace DataLibrary.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
 
-            modelBuilder.Entity("DataLibrary.Order", b =>
+            modelBuilder.Entity("DataLibrary.OrderEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -61,7 +61,7 @@ namespace DataLibrary.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("OrderProductEntity", b =>
+            modelBuilder.Entity("OrderEntityProductEntity", b =>
                 {
                     b.Property<int>("OrdersId")
                         .HasColumnType("INTEGER");
@@ -73,12 +73,12 @@ namespace DataLibrary.Migrations
 
                     b.HasIndex("ProductsId");
 
-                    b.ToTable("OrderProductEntity");
+                    b.ToTable("OrderEntityProductEntity");
                 });
 
-            modelBuilder.Entity("OrderProductEntity", b =>
+            modelBuilder.Entity("OrderEntityProductEntity", b =>
                 {
-                    b.HasOne("DataLibrary.Order", null)
+                    b.HasOne("DataLibrary.OrderEntity", null)
                         .WithMany()
                         .HasForeignKey("OrdersId")
                         .OnDelete(DeleteBehavior.Cascade)

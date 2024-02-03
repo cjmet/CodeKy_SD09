@@ -48,13 +48,13 @@
         public string? Description { get; set; }
         public decimal Price { get; set; }
         public int Quantity { get; set; }
-        public ICollection<OrderEntity> Orders { get; set; }
+        public List<OrderEntity> Orders { get; set; } = new();
     }
 
     public class OrderEntity
     {
         public int Id { get; set; }
         public DateTime OrderDate { get; set; }
-        public ICollection<ProductEntity> Products { get; set; }
+        public List<ProductEntity> Products { get; set; } = new();
     }
 }
