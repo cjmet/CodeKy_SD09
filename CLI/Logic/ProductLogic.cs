@@ -33,11 +33,11 @@ namespace CodeKY_SD01.Logic
             AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5));
             AddProduct(new ProductEntity("Puppy Chow", "Dogfood", "A Delicious Bag of Puppy Chow", 9.87m, 65));
             // ...
-            if (_repository.Orders.Count() < 3)
+            if (_repository.Orders.Count() < 5)
                 AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { GetProductById(1), GetProductById(2) } });
-            if (_repository.Orders.Count() < 3)
+            if (_repository.Orders.Count() < 5)
                 AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { GetProductById(3), GetProductById(4) } });
-            if (_repository.Orders.Count() < 3)
+            if (_repository.Orders.Count() < 5)
                 AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { GetProductById(5), GetProductById(6) } });
         }
 
@@ -98,8 +98,10 @@ namespace CodeKY_SD01.Logic
         public ProductEntity GetProductById(int Id)
         {
             var product = _repository.Products.Find(Id);
-            if (product != null) _repository.Entry(product).Collection(p => p.Orders).Load();
-
+            if (product != null)
+            {
+                _repository.Entry(product).Collection(p => p.Orders).Load();
+            }
             return product;
         }
 
@@ -125,7 +127,7 @@ namespace CodeKY_SD01.Logic
         public void AddProductToOrder(int orderId, int productId)
         {
             OrderEntity order = GetOrderById(orderId);
-            
+
             order.Products.Add(GetProductById(productId));
         }
 
@@ -150,8 +152,10 @@ namespace CodeKY_SD01.Logic
         public OrderEntity GetOrderById(int id)
         {
             var order = _repository.Orders.Find(id);
-            if (order != null) _repository.Entry(order).Collection(o => o.Products).Load();
-            
+            if (order != null)
+            {
+                _repository.Entry(order).Collection(o => o.Products).Load(); // cjm
+            }
             return order;
         }
 

@@ -195,6 +195,12 @@ namespace CodeKY_SD01
 
                     case "21":
                         Console.Clear();
+                        Console.Write("Testing Adding an Order\n");
+                        OrderEntity newOrder =
+                            new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { productLogic.GetProductById(1), productLogic.GetProductById(2) } };
+                        orderLogic.AddOrder(newOrder);
+                        break;
+                        // ***************************************
                         Console.WriteLine("Adding a new order.\n");
                         {
                             OrderEntity order = new OrderEntity();
@@ -247,7 +253,6 @@ namespace CodeKY_SD01
                             }
                             if (order.Products.Count > 0)
                             {
-                                PrintOrderItem(order);
                                 orderLogic.AddOrder(order);  // cjm 
                             }
                             if (order.Id > 0)
