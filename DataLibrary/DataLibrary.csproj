@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Obsolete\**" />
+    <EmbeddedResource Remove="Obsolete\**" />
+    <None Remove="Obsolete\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="OrderRepository.cs" />
+    <Compile Remove="ProductRepository.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

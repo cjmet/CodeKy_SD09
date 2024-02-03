@@ -6,7 +6,7 @@ using FluentValidation.Results;
 
 namespace CodeKY_SD01.Logic
 {
-    public class ProductLogic : IProductRepository
+    public class ProductLogic : IProductRepository, IOrderRepository
     {
         private readonly ProductContext _repository;
 
@@ -31,9 +31,17 @@ namespace CodeKY_SD01.Logic
             AddProduct(new ProductEntity("Void's Vittles for Kittens", "Catfood", "An Empty Bag of Kitten Food", 6.66m, 1));
             AddProduct(new ProductEntity("Kitten Kuts", "Catfood", "A Delicious Bag of Choped Steak for Kittens", 19.87m, 5));
             AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5));
+            AddProduct(new ProductEntity("Puppy Chow", "Dogfood", "A Delicious Bag of Puppy Chow", 9.87m, 65));
+            // ...
+            if (_repository.Orders.Count() < 3)
+                AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { GetProductById(1), GetProductById(2) } });
+            if (_repository.Orders.Count() < 3)
+                AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { GetProductById(3), GetProductById(4) } });
+            if (_repository.Orders.Count() < 3)
+                AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { GetProductById(5), GetProductById(6) } });
         }
 
-        public void AddProduct(DataLibrary.ProductEntity product)
+        public void AddProduct(ProductEntity product)
         {
             ProductValidator validator = new ProductValidator();
             ValidationResult result = validator.Validate(product);
@@ -54,6 +62,13 @@ namespace CodeKY_SD01.Logic
                 return;
             }
             _repository.Add(product);
+            _repository.SaveChanges();
+        }
+
+        public void AddOrder(OrderEntity order)
+        {
+            _repository.Products.UpdateRange(order.Products);
+            _repository.Orders.Add(order);
             _repository.SaveChanges();
         }
 
@@ -101,6 +116,43 @@ namespace CodeKY_SD01.Logic
         {
             category = category.ToLower();
             return _repository.Products.Where(p => p.Category.ToLower().Contains(category)).ToList();
+        }
+
+        public void AddProductToOrder(int orderId, int productId)
+        {
+            OrderEntity order = GetOrderById(orderId);
+            
+            order.Products.Add(GetProductById(productId));
+        }
+
+        public void RemoveProductFromOrder(int orderId, int productId)
+        {
+            OrderEntity order = GetOrderById(orderId);
+            order.Products.Remove(GetProductById(productId));
+        }
+
+        public void DeleteOrder(int id)
+        {
+            _repository.Orders.Remove(GetOrderById(id));
+            _repository.SaveChanges();
+        }
+
+        public void UpdateOrder(OrderEntity order)
+        {
+            _repository.Orders.Update(order);
+        }
+
+        public OrderEntity GetOrderById(int id)
+        {
+            var order = _repository.Orders.Find(id);
+            if (order != null) _repository.Entry(order).Collection(o => o.Products).Load();
+            
+            return order;
+        }
+
+        public IEnumerable<OrderEntity> GetAllOrders()
+        {
+            return _repository.Orders.ToList();
         }
 
         public bool VerboseSQL

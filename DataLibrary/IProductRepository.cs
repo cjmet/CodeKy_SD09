@@ -3,6 +3,7 @@
     public interface IProductRepository
     {
         public string DbPath { get; }
+        public bool VerboseSQL { get; set; }
         public void AddProduct(ProductEntity product);
         public void DeleteProduct(int id);
         public void UpdateProduct(ProductEntity product);
@@ -13,7 +14,19 @@
         public IEnumerable<ProductEntity> GetAllProductsByCategory(string category);
         public IEnumerable<ProductEntity> GetAllProductsByName(string name);
         public IEnumerable<ProductEntity> GetOnlyInStockProducts();
+    }
+
+    public interface IOrderRepository
+    {
+        public string DbPath { get; }
         public bool VerboseSQL { get; set; }
+        public void AddOrder(OrderEntity order);
+        public void AddProductToOrder(int orderId, int productId);
+        public void RemoveProductFromOrder(int orderId, int productId);
+        public void DeleteOrder(int id);
+        public void UpdateOrder(OrderEntity order);
+        public OrderEntity GetOrderById(int id);
+        public IEnumerable<OrderEntity> GetAllOrders();
     }
 
     public class ProductEntity
@@ -35,5 +48,13 @@
         public string? Description { get; set; }
         public decimal Price { get; set; }
         public int Quantity { get; set; }
+        public ICollection<OrderEntity> Orders { get; set; }
+    }
+
+    public class OrderEntity
+    {
+        public int Id { get; set; }
+        public DateTime OrderDate { get; set; }
+        public ICollection<ProductEntity> Products { get; set; }
     }
 }

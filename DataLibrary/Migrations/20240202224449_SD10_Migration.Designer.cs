@@ -3,6 +3,7 @@ using System;
 using DataLibrary;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,14 +11,16 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLibrary.Migrations
 {
     [DbContext(typeof(ProductContext))]
-    partial class ProductContextModelSnapshot : ModelSnapshot
+    [Migration("20240202224449_SD10_Migration")]
+    partial class SD10_Migration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
 
-            modelBuilder.Entity("DataLibrary.OrderEntity", b =>
+            modelBuilder.Entity("DataLibrary.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -58,7 +61,7 @@ namespace DataLibrary.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("OrderEntityProductEntity", b =>
+            modelBuilder.Entity("OrderProductEntity", b =>
                 {
                     b.Property<int>("OrdersId")
                         .HasColumnType("INTEGER");
@@ -70,12 +73,12 @@ namespace DataLibrary.Migrations
 
                     b.HasIndex("ProductsId");
 
-                    b.ToTable("OrderEntityProductEntity");
+                    b.ToTable("OrderProductEntity");
                 });
 
-            modelBuilder.Entity("OrderEntityProductEntity", b =>
+            modelBuilder.Entity("OrderProductEntity", b =>
                 {
-                    b.HasOne("DataLibrary.OrderEntity", null)
+                    b.HasOne("DataLibrary.Order", null)
                         .WithMany()
                         .HasForeignKey("OrdersId")
                         .OnDelete(DeleteBehavior.Cascade)
