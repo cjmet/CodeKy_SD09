@@ -20,47 +20,56 @@ namespace CodeKY_SD01.Logic
         {
             this._repository = productRepository;
             if (_repository.Products.Count() > 0 || _repository.Orders.Count() > 0) Seeded = true;
+            else
+            {
+                _repository.Database.EnsureDeleted();
+                _repository.Database.EnsureCreated();
+            }
         }
-        public bool Seeded { get; private set; } = false;
+        public bool Seeded { get; set; } = false;
 
 
         public void DebugDatabaseInit()
         {
 
-            if (Seeded || _repository.Products.Count() > 0 || _repository.Orders.Count() > 0)
+            if (Seeded)
             {
-                Console.WriteLine("Database was already seeded.");
+                Console.WriteLine("Database Data:");
                 return;
             }
-            Seeded = true;
-            bool Quiet = true;
-            Console.WriteLine("Adding Test Products.");
-            AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65), Quiet);
-            AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65), Quiet);
-            AddProduct(new ProductEntity("Kittendines", "Catfood", "A Delicious Bag of Sardines just for Kittens", 8.87m, 55), Quiet);
-            AddProduct(new ProductEntity("Void's Vittles for Kittens", "Catfood", "An Empty Bag of Kitten Food", 6.66m, 1), Quiet);
-            AddProduct(new ProductEntity("Kitten Kuts", "Catfood", "A Delicious Bag of Choped Steak for Kittens", 19.87m, 5), Quiet);
-            AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5), Quiet);
-            AddProduct(new ProductEntity("Puppy Chow", "Dogfood", "A Delicious Bag of Puppy Chow", 9.87m, 65), Quiet);
+            else
+            {
+                Seeded = true;
+                bool Quiet = true;
+                Console.WriteLine("Adding Test Products.");
+                AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65), Quiet);
+                AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65), Quiet);
+                AddProduct(new ProductEntity("Kittendines", "Catfood", "A Delicious Bag of Sardines just for Kittens", 8.87m, 55), Quiet);
+                AddProduct(new ProductEntity("Void's Vittles for Kittens", "Catfood", "An Empty Bag of Kitten Food", 6.66m, 1), Quiet);
+                AddProduct(new ProductEntity("Kitten Kuts", "Catfood", "A Delicious Bag of Choped Steak for Kittens", 19.87m, 5), Quiet);
+                AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5), Quiet);
+                AddProduct(new ProductEntity("Puppy Chow", "Dogfood", "A Delicious Bag of Puppy Chow", 9.87m, 65), Quiet);
 
 
 
-            Console.WriteLine("Adding Test Orders.");
-            var product1 = GetProductByName("Kitten Chow");
-            var product2 = GetProductByName("Kittendines");
-            if (product1 != null && product2 != null)
-                AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+                Console.WriteLine("Adding Test Orders.");
+                var product1 = GetProductByName("Kitten Chow");
+                var product2 = GetProductByName("Kittendines");
+                if (product1 != null && product2 != null)
+                    AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
 
-            product1 = GetProductByName("Void");
-            product2 = GetProductByName("Kuts");
-            if (product1 != null && product2 != null)
-                AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+                product1 = GetProductByName("Void");
+                product2 = GetProductByName("Kuts");
+                if (product1 != null && product2 != null)
+                    AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
 
-            product1 = GetProductByName("Bees");
-            product2 = GetProductByName("Puppy");
-            if (product1 != null && product2 != null)
-                AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+                product1 = GetProductByName("Bees");
+                product2 = GetProductByName("Puppy");
+                if (product1 != null && product2 != null)
+                    AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
 
+                return;
+            }
             return;
         }
 

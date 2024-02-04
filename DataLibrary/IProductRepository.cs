@@ -4,7 +4,7 @@
     {
         public string DbPath { get; }
         public bool VerboseSQL { get; set; }
-        public bool Seeded { get; }
+        public bool Seeded { get; set; }
         public void AddProduct(ProductEntity product);
         public void DeleteProduct(int id);
         public void UpdateProduct(ProductEntity product);

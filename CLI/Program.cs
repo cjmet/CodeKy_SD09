@@ -1,11 +1,6 @@
 ﻿using CodeKY_SD01.Logic;
 using DataLibrary;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 
 
 
@@ -63,11 +58,11 @@ namespace CodeKY_SD01
             MenuAddRow();
 
             MenuAddRow("Test Commands:");
-            MenuAddRow(0, "90", "Verbose", "Toggle VerboseSQL Mode.");
-            MenuAddRow(1, "");
+            MenuAddRow(0, "90", "Display", "Display Full Database.");
+            MenuAddRow(1, "91", "Verbose", "Toggle VerboseSQL Mode.");
             MenuAddRow(0, "92", "Wipe", "delete all Products.");
             MenuAddRow(1, "93", "Wipe", "delete all Orders.");
-            MenuAddRow(0, "94", "SeedDb", "Seed and/or List All Data.");
+            MenuAddRow(0, "94", "Display", "Seed and/or List All Data.");
             MenuAddRow(1, "95", "WipeDb", "Wipe Databases.");
 
             MenuAddRow();
@@ -239,27 +234,10 @@ namespace CodeKY_SD01
                             PrintProductList(productLogic);
                             break;
                         }
-                        case "92":
-                        {
-                            var products = productLogic.GetAllProducts().ToList();
-                            foreach (var item in products)
-                            {
-                                productLogic.DeleteProduct(item.Id);
-                            }
-                            PrintDivider();
-                            PrintProductList(productLogic);
-                            PrintDivider();
-                            PrintOrderList(orderLogic);
-                            PrintDivider();
-                            break;
-                        }
 
                     // ================================================================
 
                     case "21":
-                        Console.Clear();
-                        // ***************************************
-                        Console.WriteLine("Adding a new order.\n");
                         {
                             OrderEntity order = new OrderEntity();
                             order.OrderDate = DateTime.Now;
@@ -271,56 +249,77 @@ namespace CodeKY_SD01
 
                             do
                             {
+                                //Console.Clear();
+                                Console.WriteLine("Adding a new order.\n");
                                 // +++++++++++++
                                 PrintDivider();
                                 PrintProductList(productLogic);
                                 PrintDivider();
-                                PrintOrderItem(order,true);
+                                PrintOrderItem(order, true);
                                 PrintDivider();
                                 // +++++++++++++
-
-                                Console.WriteLine("Input ProductId or Keyword to add to the order, ");
-                                Console.WriteLine("'Undo' to remove the last item, or <Enter> to Send the Order:");
-                                userInput2 = Console.ReadLine();
-                                userInput2 = userInput2.Trim();
 
 
                                 product = null;
                                 int productId = 0;
-                                if (userInput2.ToLower() == "undo" || userInput2.ToLower() == "u")
-                                {
-                                    var lastProduct = order.Products.LastOrDefault();
-                                    // Simple version removes the first occurrence of the last product in the list.
-                                    // if (lastProduct != null) order.Products.Remove(lastProduct);
-                                    // Fixed Below
-                                    if (lastProduct != null)
-                                    {
-                                        //  ICollection<ProductEntity> tmp;   // cjm
-                                        // .Reverse and/or .ToList do not work here. // Several Errors with other methods. 
-                                        // and many of those Errors fail to build but don't show up in the Error List.
-                                        Stack<ProductEntity> stack = new Stack<ProductEntity>(order.Products);
-                                        order.Products = stack.ToList();
-                                        order.Products.Remove(lastProduct);
-                                        stack = new Stack<ProductEntity>(order.Products);
-                                        order.Products = stack.ToList();
-                                    }
-                                }
-                                else if (userInput2 == "") product = null;
-                                else if (int.TryParse(userInput2, out productId)) product = productLogic.GetProductById(productId);
-                                else product = productLogic.GetProductByName(userInput2);
+                                Console.WriteLine("Input ProductId or Keyword to add to the order, ");
+                                Console.WriteLine("'Undo' to remove the last item, or <Enter> to Send the Order:");
+                                userInput2 = Console.ReadLine();
+                                userInput2 = userInput2.Trim().ToLower();
 
 
-                                Console.Clear();
-                                if (product != null)
+                                switch (userInput2)
                                 {
-                                    if (order.Products == null) order.Products = new List<ProductEntity>();
-                                    order.Products.Add(product);
+                                    case "undo":
+                                    case "u":
+                                        {
+                                            var lastProduct = order.Products.LastOrDefault();
+                                            // Simple version removes the first occurrence of the last product in the list.
+                                            // if (lastProduct != null) order.Products.Remove(lastProduct);
+                                            // Fixed Below
+                                            if (lastProduct != null)
+                                            {
+                                                //  ICollection<ProductEntity> tmp;   // cjm
+                                                // .Reverse and/or .ToList do not work here. // Several Errors with other methods. 
+                                                // and many of those Errors fail to build but don't show up in the Error List.
+                                                Stack<ProductEntity> stack = new Stack<ProductEntity>(order.Products);
+                                                // Futher Simplified
+                                                //order.Products = stack.ToList();
+                                                //order.Products.Remove(lastProduct);
+                                                //stack = new Stack<ProductEntity>(order.Products);
+                                                stack.Pop();
+                                                order.Products = stack.Reverse().ToList();
+                                            }
+                                            break;
+                                        } // /Undo
+
+                                    case "remove":
+                                    case "r":
+                                        {
+                                            Console.WriteLine("Enter the product id or name to remove from the order:");
+                                            var userInput3 = Console.ReadLine();
+                                            userInput3 = userInput3.Trim().ToLower();
+                                            if (int.TryParse(userInput3, out productId)) product = productLogic.GetProductById(productId);
+                                            else if (userInput3 != "") product = productLogic.GetProductByName(userInput3);
+                                            if (product != null) order.Products.Remove(product);
+                                            break;
+                                        } // /Remove
+
+
+                                    default:
+                                        {  // Add Product
+                                            if (int.TryParse(userInput2, out productId)) product = productLogic.GetProductById(productId);
+                                            else product = productLogic.GetProductByName(userInput2);
+                                            if (product != null)
+                                            {
+                                                if (order.Products == null) order.Products = new List<ProductEntity>();
+                                                order.Products.Add(product);
+                                            }
+                                            break;
+                                        } // /Add Product
                                 }
-                                else
-                                {
-                                    if (userInput2 != "") Console.WriteLine($"Product '{userInput2}' was not found.");
-                                }
-                                userInput2 = userInput2.ToLower();
+
+                                if (userInput2 != "" && product == null) Console.WriteLine($"Product '{userInput2}' was not found.");
                             } while (userInput2 != "");
 
 
@@ -409,13 +408,15 @@ namespace CodeKY_SD01
                             PrintOrderList(orderLogic);
                             break;
                         }
-                        case "93":  // delete all orders
+
+
+                    // ================================================================
+
+
+                    case "90":
                         {
-                            var orders = orderLogic.GetAllOrders().ToList();
-                            foreach (var item in orders)
-                            {
-                                orderLogic.DeleteOrder(item.Id);
-                            }
+                            Console.Clear();
+                            Console.WriteLine("Displaying Full Database:");
                             PrintDivider();
                             PrintProductList(productLogic);
                             PrintDivider();
@@ -423,18 +424,39 @@ namespace CodeKY_SD01
                             PrintDivider();
                             break;
                         }
-
-                    // ================================================================
-
-                    case "90":
+                        break;
+                    case "91":
                         productLogic.VerboseSQL = !productLogic.VerboseSQL;
                         Console.WriteLine($"VerboseSQL is now {productLogic.VerboseSQL}");
                         PrintDivider();
                         break;
-                    case "91":  // unimplemented
+                    case "92":
                         {
-                            Console.Clear();
-                            Console.WriteLine("Unimplemented");
+                            var products = productLogic.GetAllProducts().ToList();
+                            foreach (var item in products)
+                            {
+                                productLogic.DeleteProduct(item.Id);
+                            }
+                            productLogic.Seeded = false;
+                            PrintDivider();
+                            PrintProductList(productLogic);
+                            PrintDivider();
+                            PrintOrderList(orderLogic);
+                            PrintDivider();
+                            break;
+                        }
+                    case "93":  // delete all orders
+                        {
+                            var orders = orderLogic.GetAllOrders().ToList();
+                            foreach (var item in orders)
+                            {
+                                orderLogic.DeleteOrder(item.Id);
+                            }
+                            productLogic.Seeded = false;
+                            PrintDivider();
+                            PrintProductList(productLogic);
+                            PrintDivider();
+                            PrintOrderList(orderLogic);
                             PrintDivider();
                             break;
                         }
@@ -451,6 +473,8 @@ namespace CodeKY_SD01
                         }
                     case "95":
                         {
+                            Console.WriteLine("Wiping the Database.");
+                            Console.WriteLine("To completely RESET the Database, Restart the program now.");
                             var products = productLogic.GetAllProducts().ToList();
                             foreach (var item in products)
                             {
@@ -461,6 +485,7 @@ namespace CodeKY_SD01
                             {
                                 orderLogic.DeleteOrder(item.Id);
                             }
+                            productLogic.Seeded = false;
                             break;
                         }
 
