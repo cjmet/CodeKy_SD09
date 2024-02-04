@@ -4,6 +4,7 @@
     {
         public string DbPath { get; }
         public bool VerboseSQL { get; set; }
+        public bool Seeded { get; set; }
         public void AddProduct(ProductEntity product);
         public void DeleteProduct(int id);
         public void UpdateProduct(ProductEntity product);
@@ -14,6 +15,7 @@
         public IEnumerable<ProductEntity> GetAllProductsByCategory(string category);
         public IEnumerable<ProductEntity> GetAllProductsByName(string name);
         public IEnumerable<ProductEntity> GetOnlyInStockProducts();
+        public void DebugDatabaseInit();
     }
 
     public interface IOrderRepository
