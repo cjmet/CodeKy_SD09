@@ -2,6 +2,7 @@
 using DataLibrary;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace CodeKY_SD01.Logic
@@ -9,9 +10,7 @@ namespace CodeKY_SD01.Logic
     public class ProductLogic : IProductRepository, IOrderRepository
     {
         private readonly ProductContext _repository;
-
         public string DbPath { get => _repository.DbPath; }
-
         public ProductLogic()
         {
             _repository = new ProductContext();
@@ -20,28 +19,64 @@ namespace CodeKY_SD01.Logic
         public ProductLogic(ProductContext productRepository)
         {
             this._repository = productRepository;
+            if (_repository.Products.Count() > 0 || _repository.Orders.Count() > 0) Seeded = true;
+            else
+            {
+                _repository.Database.EnsureDeleted();
+                _repository.Database.EnsureCreated();
+            }
         }
+        public bool Seeded { get; set; } = false;
+
 
         public void DebugDatabaseInit()
         {
-            Console.WriteLine("Creating a Debug Database.");
 
-            AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65));
-            AddProduct(new ProductEntity("Kittendines", "Catfood", "A Delicious Bag of Sardines just for Kittens", 8.87m, 55));
-            AddProduct(new ProductEntity("Void's Vittles for Kittens", "Catfood", "An Empty Bag of Kitten Food", 6.66m, 1));
-            AddProduct(new ProductEntity("Kitten Kuts", "Catfood", "A Delicious Bag of Choped Steak for Kittens", 19.87m, 5));
-            AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5));
-            AddProduct(new ProductEntity("Puppy Chow", "Dogfood", "A Delicious Bag of Puppy Chow", 9.87m, 65));
-            // ...
-            if (_repository.Orders.Count() < 5)
-                AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { GetProductById(1), GetProductById(2) } });
-            if (_repository.Orders.Count() < 5)
-                AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { GetProductById(3), GetProductById(4) } });
-            if (_repository.Orders.Count() < 5)
-                AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = new List<ProductEntity>() { GetProductById(5), GetProductById(6) } });
+            if (Seeded)
+            {
+                Console.WriteLine("Database Data:");
+                return;
+            }
+            else
+            {
+                Seeded = true;
+                bool Quiet = true;
+                Console.WriteLine("Adding Test Products.");
+                AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65), Quiet);
+                AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65), Quiet);
+                AddProduct(new ProductEntity("Kittendines", "Catfood", "A Delicious Bag of Sardines just for Kittens", 8.87m, 55), Quiet);
+                AddProduct(new ProductEntity("Void's Vittles for Kittens", "Catfood", "An Empty Bag of Kitten Food", 6.66m, 1), Quiet);
+                AddProduct(new ProductEntity("Kitten Kuts", "Catfood", "A Delicious Bag of Choped Steak for Kittens", 19.87m, 5), Quiet);
+                AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5), Quiet);
+                AddProduct(new ProductEntity("Puppy Chow", "Dogfood", "A Delicious Bag of Puppy Chow", 9.87m, 65), Quiet);
+
+
+
+                Console.WriteLine("Adding Test Orders.");
+                var product1 = GetProductByName("Kitten Chow");
+                var product2 = GetProductByName("Kittendines");
+                if (product1 != null && product2 != null)
+                    AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+
+                product1 = GetProductByName("Void");
+                product2 = GetProductByName("Kuts");
+                if (product1 != null && product2 != null)
+                    AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+
+                product1 = GetProductByName("Bees");
+                product2 = GetProductByName("Puppy");
+                if (product1 != null && product2 != null)
+                    AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+
+                return;
+            }
+            return;
         }
 
-        public void AddProduct(ProductEntity product)
+
+
+        public void AddProduct(ProductEntity product) => AddProduct(product, false);
+        public void AddProduct(ProductEntity product, bool Quiet = false)
         {
             ProductValidator validator = new ProductValidator();
             ValidationResult result = validator.Validate(product);
@@ -51,14 +86,17 @@ namespace CodeKY_SD01.Logic
             }
             if (!result.IsValid)
             {
-                foreach (var failure in result.Errors)
+                if (!Quiet)
                 {
-                    string shortString = failure.AttemptedValue.ToString();
-                    if (shortString.Length > 60)
-                        shortString = shortString.Substring(0, 60);
-                    Console.WriteLine($"Error [{failure.PropertyName} = {shortString}] \n\t {failure.ErrorMessage}");
+                    foreach (var failure in result.Errors)
+                    {
+                        string shortString = failure.AttemptedValue.ToString();
+                        if (shortString.Length > 60)
+                            shortString = shortString.Substring(0, 60);
+                        Console.WriteLine($"Error [{failure.PropertyName} = {shortString}] \n\t {failure.ErrorMessage}");
+                    }
+                    Console.WriteLine();
                 }
-                Console.WriteLine();
                 return;
             }
             _repository.Add(product);
@@ -69,7 +107,7 @@ namespace CodeKY_SD01.Logic
         {
             //_repository.Products.UpdateRange(order.Products);
             _repository.Orders.Add(order);
-            _repository.SaveChanges(); // cjm
+            _repository.SaveChanges();
         }
 
         public void UpdateProduct(ProductEntity product)
@@ -85,43 +123,31 @@ namespace CodeKY_SD01.Logic
         }
 
         public IEnumerable<ProductEntity> GetAllProducts() =>
-            _repository.Products.ToList();
+            _repository.Products.Include(p => p.Orders).ToList();
 
         public IEnumerable<ProductEntity> GetOnlyInStockProducts() => _repository.Products.Where(p => p.Quantity > 0).ToList();
 
         public ProductEntity GetProductByName(string name)
         {
             name = name.ToLower();
-            return GetAllProducts().Where(p => p.Name.ToLower() == name).FirstOrDefault();
+            return GetAllProducts().Where(p => p.Name.ToLower().Contains(name)).FirstOrDefault();
         }
 
         public ProductEntity GetProductById(int Id)
         {
-            var product = _repository.Products.Find(Id);
-            if (product != null)
-            {
-                _repository.Entry(product).Collection(p => p.Orders).Load();
-            }
-            return product;
-        }
-
-        public List<ProductEntity> SearchProducts(string name)
-        {
-            name = name.ToLower();
-            return GetAllProducts().Where(p => p.Name.ToLower().Contains(name)).ToList();
-
+            return _repository.Products.Where(p => p.Id == Id).Include(p => p.Orders).FirstOrDefault();
         }
 
         public IEnumerable<ProductEntity> GetAllProductsByName(string name)
         {
             name = name.ToLower();
-            return _repository.Products.Where(p => p.Name.ToLower().Contains(name)).ToList();
+            return _repository.Products.Where(p => p.Name.ToLower().Contains(name)).Include(p => p.Orders).ToList();
         }
 
         public IEnumerable<ProductEntity> GetAllProductsByCategory(string category)
         {
             category = category.ToLower();
-            return _repository.Products.Where(p => p.Category.ToLower().Contains(category)).ToList();
+            return _repository.Products.Where(p => p.Category.ToLower().Contains(category)).Include(p => p.Orders).ToList();
         }
 
         public void AddProductToOrder(int orderId, int productId)
@@ -151,17 +177,12 @@ namespace CodeKY_SD01.Logic
 
         public OrderEntity GetOrderById(int id)
         {
-            var order = _repository.Orders.Find(id);
-            if (order != null)
-            {
-                _repository.Entry(order).Collection(o => o.Products).Load(); // cjm
-            }
-            return order;
+            return _repository.Orders.Where(o => o.Id == id).Include(o => o.Products).FirstOrDefault();
         }
 
         public IEnumerable<OrderEntity> GetAllOrders()
         {
-            return _repository.Orders.ToList();
+            return _repository.Orders.Include(o => o.Products).ToList();
         }
 
         public bool VerboseSQL

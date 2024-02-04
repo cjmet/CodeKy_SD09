@@ -1,34 +1,5 @@
 ﻿namespace DataLibrary
 {
-    public interface IProductRepository
-    {
-        public string DbPath { get; }
-        public bool VerboseSQL { get; set; }
-        public void AddProduct(ProductEntity product);
-        public void DeleteProduct(int id);
-        public void UpdateProduct(ProductEntity product);
-        // public void SaveChanges();
-        public ProductEntity GetProductById(int id);
-        public ProductEntity GetProductByName(string name);
-        public IEnumerable<ProductEntity> GetAllProducts();
-        public IEnumerable<ProductEntity> GetAllProductsByCategory(string category);
-        public IEnumerable<ProductEntity> GetAllProductsByName(string name);
-        public IEnumerable<ProductEntity> GetOnlyInStockProducts();
-    }
-
-    public interface IOrderRepository
-    {
-        public string DbPath { get; }
-        public bool VerboseSQL { get; set; }
-        public void AddOrder(OrderEntity order);
-        public void AddProductToOrder(int orderId, int productId);
-        public void RemoveProductFromOrder(int orderId, int productId);
-        public void DeleteOrder(int id);
-        public void UpdateOrder(OrderEntity order);
-        public OrderEntity GetOrderById(int id);
-        public IEnumerable<OrderEntity> GetAllOrders();
-    }
-
     public class ProductEntity
     {
         public ProductEntity() : this("void", null, null, 0, 0) { }
@@ -51,10 +22,23 @@
         public List<OrderEntity> Orders { get; set; } = new();
     }
 
-    public class OrderEntity
+
+    public interface IProductRepository
     {
-        public int Id { get; set; }
-        public DateTime OrderDate { get; set; }
-        public List<ProductEntity> Products { get; set; } = new();
+        public string DbPath { get; }
+        public bool VerboseSQL { get; set; }
+        public bool Seeded { get; set; }    // Special for DebugDatabaseInit
+        public void DebugDatabaseInit();    // Special
+        public void AddProduct(ProductEntity product);
+        public void DeleteProduct(int id);
+        public void UpdateProduct(ProductEntity product);
+        // public void SaveChanges();       // A separate method for saving changes is probably the best practice
+        public ProductEntity GetProductById(int id);
+        public ProductEntity GetProductByName(string name);
+        public IEnumerable<ProductEntity> GetAllProducts();
+        public IEnumerable<ProductEntity> GetAllProductsByCategory(string category);
+        public IEnumerable<ProductEntity> GetAllProductsByName(string name);
+        public IEnumerable<ProductEntity> GetOnlyInStockProducts();
     }
+ 
 }
