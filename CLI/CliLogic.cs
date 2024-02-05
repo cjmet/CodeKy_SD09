@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CodeKY_SD01.Logic;
+using DataLibrary;
 
 
 // ######################################################
@@ -16,9 +18,9 @@ namespace CodeKY_SD01
 {
     public static class CliLogic
     {
-
-        public static void CliSwitch(IProductRepository? productLogic, IOrderRepository orderLogic, int input)
+        public static void CliSwitch(IProductRepository productLogic, IOrderRepository orderLogic, int input)
         {
+            //orderLogic = productLogic; // cjm 
             String userInput = input.ToString();
             switch (userInput)
             {
@@ -156,7 +158,7 @@ namespace CodeKY_SD01
 
                         do
                         {
-                            //Console.Clear();
+                            Console.Clear();
                             Console.WriteLine("Adding a new order.\n");
                             // +++++++++++++
                             PrintDivider();
@@ -170,7 +172,8 @@ namespace CodeKY_SD01
                             product = null;
                             int productId = 0;
                             Console.WriteLine("Input ProductId or Keyword to add to the order, ");
-                            Console.WriteLine("'Undo' to remove the last item, or <Enter> to Send the Order:");
+                            Console.WriteLine("'Undo' or 'Remove' to delete items from the order");
+                            Console.WriteLine("Press <Enter> to Send the Order:");
                             userInput2 = Console.ReadLine();
                             userInput2 = userInput2.Trim().ToLower();
 
@@ -186,7 +189,7 @@ namespace CodeKY_SD01
                                         // Fixed Below
                                         if (lastProduct != null)
                                         {
-                                            //  ICollection<ProductEntity> tmp;   // cjm
+                                            //  ICollection<ProductEntity> tmp;   
                                             // .Reverse and/or .ToList do not work here. // Several Errors with other methods. 
                                             // and many of those Errors fail to build but don't show up in the Error List.
                                             Stack<ProductEntity> stack = new Stack<ProductEntity>(order.Products);
@@ -212,7 +215,10 @@ namespace CodeKY_SD01
                                         if (product != null) order.Products.Remove(product);
                                         break;
                                     } // /Remove
-
+                                case "":    // Aka: Send Order
+                                    {
+                                        break;
+                                    } 
 
                                 default:
                                     {  // Add Product
@@ -220,8 +226,8 @@ namespace CodeKY_SD01
                                         else product = productLogic.GetProductByName(userInput2);
                                         if (product != null)
                                         {
-                                            if (order.Products == null) order.Products = new List<ProductEntity>();
-                                            order.Products.Add(product);
+                                            if (order.Products == null) order.Products = new List<ProductEntity>();  // cjm 
+                                            order.Products.Add(product); 
                                         }
                                         break;
                                     } // /Add Product
@@ -232,11 +238,11 @@ namespace CodeKY_SD01
 
 
                         // Save the order
-                        if (order.Products == null) order.Products = new List<ProductEntity>();
+                        if (order.Products == null) order.Products = new List<ProductEntity>();  // cjm 
                         foreach (var item in order.Products)
                         {
                             if (item.Orders == null) item.Orders = new List<OrderEntity>();
-                            item.Orders.Add(order);
+                            //item.Orders.Add(order); // cjm  // Tracking takes care of this?
                         }
                         if (order.Products.Count > 0)
                         {
@@ -334,18 +340,23 @@ namespace CodeKY_SD01
                     }
                     break;
                 case "91":
+                    Console.Clear();
                     productLogic.VerboseSQL = !productLogic.VerboseSQL;
                     Console.WriteLine($"VerboseSQL is now {productLogic.VerboseSQL}");
+                    PrintDivider();
+                    PrintProductList(productLogic);
+                    PrintDivider();
+                    PrintOrderList(orderLogic);
                     PrintDivider();
                     break;
                 case "92":
                     {
+                        Console.Clear();
                         var products = productLogic.GetAllProducts().ToList();
                         foreach (var item in products)
                         {
                             productLogic.DeleteProduct(item.Id);
                         }
-                        productLogic.Seeded = false;
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();
@@ -355,12 +366,12 @@ namespace CodeKY_SD01
                     }
                 case "93":  // delete all orders
                     {
+                        Console.Clear();
                         var orders = orderLogic.GetAllOrders().ToList();
                         foreach (var item in orders)
                         {
                             orderLogic.DeleteOrder(item.Id);
                         }
-                        productLogic.Seeded = false;
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();
@@ -371,7 +382,7 @@ namespace CodeKY_SD01
                 case "94":
                     {
                         Console.Clear();
-                        productLogic.DebugDatabaseInit();
+                        //productLogic.DebugDatabaseInit();
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();
@@ -381,19 +392,15 @@ namespace CodeKY_SD01
                     }
                 case "95":
                     {
+                        Console.Clear();
                         Console.WriteLine("Wiping the Database.");
-                        Console.WriteLine("To completely RESET the Database, Restart the program now.");
-                        var products = productLogic.GetAllProducts().ToList();
-                        foreach (var item in products)
-                        {
-                            productLogic.DeleteProduct(item.Id);
-                        }
-                        var orders = orderLogic.GetAllOrders().ToList();
-                        foreach (var item in orders)
-                        {
-                            orderLogic.DeleteOrder(item.Id);
-                        }
-                        productLogic.Seeded = false;
+                        //Console.WriteLine("To completely RESET the Database, Restart the program now.");
+                        productLogic.ResetDatabase();
+                        PrintDivider();
+                        PrintProductList(productLogic);
+                        PrintDivider();
+                        PrintOrderList(orderLogic);
+                        PrintDivider();
                         break;
                     }
             }
@@ -409,7 +416,7 @@ namespace CodeKY_SD01
             Console.WriteLine($"{item.Id,3}: {item.Name,-30} - {item.Category,15} - Qty: {item.Quantity,2} - {item.Price:C}");
         }
 
-        static void PrintDivider()
+        public static void PrintDivider()
         {
             //               ("-----------------------------------------------------------------------------");
             Console.WriteLine("=============================================================================");
@@ -442,7 +449,7 @@ namespace CodeKY_SD01
 
 
 
-        static void PrintProductList(IProductRepository? productLogic, bool printDetails = false)
+        public static void PrintProductList(IProductRepository? productLogic, bool printDetails = false)
         {
             var list = productLogic.GetAllProducts().ToList();
             if (list != null && list.Count > 0)
@@ -460,7 +467,7 @@ namespace CodeKY_SD01
         }
 
 
-        static void PrintOrderList(IOrderRepository? orderLogic, bool printDetails = false)
+        public static void PrintOrderList(IOrderRepository? orderLogic, bool printDetails = false)
         {
             // PrintOrderList(orderLogic);
             var list = orderLogic.GetAllOrders().ToList();

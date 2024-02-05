@@ -5,6 +5,7 @@ Code Kentucky Software Development Module 10
 ## To Do
 * **In Scope**
   * Part 10b add Unit Testing
+  * ProductLogic(IProductRepository, IOrderRepository), and refactor internals for _productRepository and _orderRepository;   
 * **Out of Scope**
   * Convert to IProductOrderRepository combined single interface and test
   * ProductUpdate and OrderUpdate
@@ -29,6 +30,8 @@ Out of scope improvements to the Pet Shop project.
 * Utilities Menu
 
 ## Notes
+#### Remove .AddSingleton<ProductContext>()
+  * Remove AddSingleton<ProductContext>(), legacy service.  It may have been causing some conflits.
 #### Use AddScoped or AddSingleton for the ProdcutContext
  * Use AddScoped or AddSingleton for the ProdcutContext to ensure the same instance is used for both Interfaces.  Using AddTransient means the IProductRepository and IOrderRepository will be different.  This results in different instances of the ProductContext being used, which means different contexts for products and orders depending on which repository loaded them.
  * You may alternatively want to create and use a combined single interface.  Aka: IProductOrder

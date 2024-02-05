@@ -1,18 +1,10 @@
 ﻿namespace DataLibrary
 {
-
-    public class OrderEntity
-    {
-        public int Id { get; set; }
-        public DateTime OrderDate { get; set; }
-        public List<ProductEntity> Products { get; set; } = new();
-    }
-
-
     public interface IOrderRepository
     {
-        public string DbPath { get; }
-        public bool VerboseSQL { get; set; }
+        public string OrderInterfaceFilename { get => "IOrderRepository"; }
+        public string OrderInterfaceFunctionName() => "IOrderRespository";
+        public string OrderDbPath { get => "IOrderRespository"; }
         public void AddOrder(OrderEntity order);
         public void AddProductToOrder(int orderId, int productId);
         public void RemoveProductFromOrder(int orderId, int productId);

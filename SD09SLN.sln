@@ -12,6 +12,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataLibrary", "DataLibrary\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AngelHornetLibrary", "..\AngelHornetLibrary\AngelHornetLibrary.csproj", "{A4370C17-EC7D-4F27-B5A9-654DC874692A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{74DBA1D4-3ABF-4631-B923-9D5C3894B840}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{A4370C17-EC7D-4F27-B5A9-654DC874692A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4370C17-EC7D-4F27-B5A9-654DC874692A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4370C17-EC7D-4F27-B5A9-654DC874692A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74DBA1D4-3ABF-4631-B923-9D5C3894B840}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74DBA1D4-3ABF-4631-B923-9D5C3894B840}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74DBA1D4-3ABF-4631-B923-9D5C3894B840}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74DBA1D4-3ABF-4631-B923-9D5C3894B840}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
