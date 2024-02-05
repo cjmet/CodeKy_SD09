@@ -1,5 +1,5 @@
 logo:
-![alt text](file://Angel%20Hornet%20Logo.png "Angel Hornet Logo")
+![Angel Hornet Logo]("https://github.com/cjmet/CodeKy_SD09/blob/main/Angel%20Hornet%20Logo.png")
 # CodeKY_SD10
 Code Kentucky Software Development Module 10
 
