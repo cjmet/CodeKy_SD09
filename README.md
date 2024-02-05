@@ -1,35 +1,21 @@
-```
-                       @@@@             #@@                       
-                       *@ ,@@@@@(@@@@@@@,.@                       
- *                     *@@@@@@@@@@@@@*@@@@@                      @
- ((@@@                 @@@@&@@@@&(@@@@@@@@@/                 @@&@%
-   @@, @@@/           *@@@@   @(@@@@@   %@@@(           *@@@  @@  
-     .@%%   #@@@/     (@@@@@&@@@@@@@@@@@@@@/      /&@@(   .@@.    
-    @@@@@@        @@@   @@(@@@@@@@@@@@@*@@.   %@@        @@@@@@   
-      .@@@@*         @@ @@@/@@@@@@@@@@@@&@  @@         *&@@@,     
-        @@@@@@         @@@@@@@@      @@@@/@@         @@@@@@       
-          .@@@@@@     @@@@@@@@@@    #@@@@@&@%     @@@@@@@         
-                   @@@@@@@@@@@@@@  @(@@@@@@@@,@@                  
-               @@@@  @@&@@@@@@@@@@@@@%@@%@@@@@                    
-              @@@@@@ @@%@@@@,@@@@#@@@@@@@@@@@@                    
-              @@@@@@  @@@@@@@@@@@@@@@@@@@@@@@@                    
-               @@@@@@ *@(@@@@(@@@@@#@#@@@@@@@@@(                  
-               .&@@@@@  @&# @   @&@@@@@@@@. @@@@                  
-                 @@@@@@@   .    ,@&   @    @@@@(                  
-                   *@@@@@&@@@*,    **@@@@@@@@@,                   
-                       @@@@@@@@@%@@@@@@@@@@.                      
-```
+logo:
+![alt text](file://Angel%20Hornet%20Logo.png "Angel Hornet Logo")
 # CodeKY_SD10
 Code Kentucky Software Development Module 10
 
 ## To Do
-* Cleanup the Menu system.  Create MenuCli.cs
-* Cleanup IProductRepository
+* MenuCli.cs
+  * TryParse, ExactMatch, and ContainsMatch
 * Convert to IProductOrderRepository combined single interface and test
 * Part 10b add Unit Testing
 
 ## Known Issues
 * ... 
+
+## Pet Shop Improved
+* Improved Menu System
+* Additional Menu Options
+* *
 
 ## Notes
 #### Use AddScoped or AddSingleton for the ProdcutContext

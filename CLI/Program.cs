@@ -46,16 +46,23 @@ namespace CodeKY_SD01
                 MenuCli orderMenu = new MenuCli();
                 MenuCli utilityMenu = new MenuCli();
 
-                mainMenu.AddDefault(() =>
-                    {
-                        Console.WriteLine($"\n{AngelHornet.Logo()}\n\n");
-                        Console.WriteLine("Welcome to our Pet Shop!");
-                        Console.WriteLine("------------------------");
-                    });
+                void logo()
+                {
+                    Console.Clear();
+                    Console.WriteLine($"\n{AngelHornet.Logo()}\n\n");
+                    Console.WriteLine("Welcome to our Pet Shop!");
+                    Console.WriteLine("------------------------");
+                }
+
+
+                //mainMenu.AddOnEntry(logo);                  // Both these syntaxes work.  But lets use the delegate version for consistency.
+                mainMenu.AddOnEntry(() => { logo(); });   // Both these syntaxes work.
                 mainMenu.AddItem("Products", () => { productMenu.Loop(); });
                 mainMenu.AddItem("Orders", () => { orderMenu.Loop(); });
                 mainMenu.AddItem("Utility", () => { utilityMenu.Loop(); });
                 mainMenu.AddItem(["Quit", "Exit"], () => { mainMenu.Exit(); });
+                mainMenu.AddDefault(mainMenu.GetEntryAction());
+
 
                 productMenu.AddItem("List", () =>
                     { CliSwitch(productLogic, orderLogic, 13); });
@@ -70,6 +77,10 @@ namespace CodeKY_SD01
                 productMenu.AddItem("Delete", () =>
                     { CliSwitch(productLogic, orderLogic, 15); });
                 productMenu.AddItem(["Back", "Quit", "Exit"], () => { productMenu.Exit(); });
+                productMenu.AddDefault(0);
+                productMenu.AddOnEntry(0);
+                productMenu.AddOnExit(mainMenu.GetEntryAction());
+
 
                 orderMenu.AddItem("List", () =>
                    { CliSwitch(productLogic, orderLogic, 23); });
@@ -82,6 +93,10 @@ namespace CodeKY_SD01
                 orderMenu.AddItem("Delete", () =>
                    { CliSwitch(productLogic, orderLogic, 25); });
                 orderMenu.AddItem(["Back", "Quit", "Exit"], () => { orderMenu.Exit(); });
+                orderMenu.AddDefault(0);
+                orderMenu.AddOnEntry(0);
+                orderMenu.AddOnExit(mainMenu.GetEntryAction());
+
 
                 utilityMenu.AddItem("Display", () =>
                     { CliSwitch(productLogic, orderLogic, 90); });
@@ -96,6 +111,9 @@ namespace CodeKY_SD01
                 utilityMenu.AddItem("WipeDb", () =>
                     { CliSwitch(productLogic, orderLogic, 95); });
                 utilityMenu.AddItem(["Back", "Quit", "Exit"], () => { utilityMenu.Exit(); });
+                utilityMenu.AddDefault(0);
+                utilityMenu.AddOnEntry(0);
+                utilityMenu.AddOnExit(mainMenu.GetEntryAction());
 
                 mainMenu.Loop();
                 Environment.Exit(0);
