@@ -212,7 +212,10 @@ namespace CodeKY_SD01
                                         if (product != null) order.Products.Remove(product);
                                         break;
                                     } // /Remove
-
+                                case "":    // Aka: Send Order
+                                    {
+                                        break;
+                                    } 
 
                                 default:
                                     {  // Add Product

@@ -33,6 +33,14 @@ namespace CodeKY_SD01
             var orderLogic = services.GetService<IOrderRepository>();
             Debug.WriteLine($"Database Path: {productLogic.DbPath}");
             Debug.WriteLine($"Contains Data: {productLogic.Seeded}");
+            if (!productLogic.Seeded)
+            {
+                CliSwitch(productLogic, orderLogic, 94);
+                Console.WriteLine("Press <Enter> to Begin.");
+                Console.ReadLine();
+            }
+
+
 
             // ###################################################################################################
             // MenuCli System - Work in Progress
@@ -52,7 +60,10 @@ namespace CodeKY_SD01
 
 
             //mainMenu.AddOnEntry(logo);                  // Both these syntaxes work.  But lets use the delegate version for consistency.
-            mainMenu.AddOnEntry(() => { logo(); });   // Both these syntaxes work.
+            mainMenu.AddOnEntry(() =>
+            {
+                logo();
+            });   // Both these syntaxes work.
             mainMenu.AddItem("Products", () => { productMenu.Loop(); });
             mainMenu.AddItem("Orders", () => { orderMenu.Loop(); });
             mainMenu.AddItem("Utility", () => { utilityMenu.Loop(); });
@@ -69,7 +80,7 @@ namespace CodeKY_SD01
             productMenu.AddItem("Add", () =>
                 { CliSwitch(productLogic, orderLogic, 11); });
             productMenu.AddItem("Update", () =>
-                { 
+                {
                     productMenu.ErrorMsg = "Update is not implemented yet.";
                     productMenu.GetAction(0).Invoke();
                 });
@@ -88,8 +99,8 @@ namespace CodeKY_SD01
             orderMenu.AddItem("", null);
             orderMenu.AddItem("Add", () =>
                { CliSwitch(productLogic, orderLogic, 21); });
-            orderMenu.AddItem("Update", () => 
-                { 
+            orderMenu.AddItem("Update", () =>
+                {
                     orderMenu.ErrorMsg = "Update is not implemented yet.";
                     orderMenu.GetAction(0).Invoke();
                 });
