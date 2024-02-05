@@ -44,16 +44,16 @@ namespace CodeKY_SD01
             // MenuCli System - Work in Progress
             if (false)
             {
-                MenuCli mainMenu = new MenuCli();
-                mainMenu.AddItem("List", () => { Console.WriteLine("List"); });
-                mainMenu.AddItem("Detail", () => { Console.WriteLine("Detail"); });
-                mainMenu.AddItem("Add", () => { Console.WriteLine("Add"); });
-                mainMenu.AddItem("InStock", () => { Console.WriteLine("InStock"); });
-                mainMenu.AddItem("Update", () => { Console.WriteLine("Update"); });
-                mainMenu.AddItem("Delete", () => { Console.WriteLine("Delete"); });
-                mainMenu.AddItem(["Quit", "Exit"], () => { mainMenu.Exit(); });
+                MenuCli productMenu = new MenuCli();
+                productMenu.AddItem("List", () => { Console.WriteLine("List"); });
+                productMenu.AddItem("Detail", () => { Console.WriteLine("Detail"); });
+                productMenu.AddItem("Add", () => { Console.WriteLine("Add"); });
+                productMenu.AddItem("InStock", () => { Console.WriteLine("InStock"); });
+                productMenu.AddItem("Update", () => { Console.WriteLine("Update"); });
+                productMenu.AddItem("Delete", () => { Console.WriteLine("Delete"); });
+                productMenu.AddItem(["Quit", "Exit"], () => { productMenu.Exit(); });
 
-                mainMenu.Loop();
+                productMenu.Loop();
                 Environment.Exit(0);
             }
 
