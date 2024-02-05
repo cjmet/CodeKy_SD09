@@ -40,6 +40,7 @@ namespace DataLibrary
             DbPath = Path.Join(path, "product.db");
         }
 
+        // This wasn't needed after all
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
         //    modelBuilder.Entity<ProductEntity>()
@@ -49,7 +50,7 @@ namespace DataLibrary
         //        .HasMany(o => o.Products)
         //        .WithMany(p => p.Orders);
         //}
-
+        // /end of block
 
     }
 

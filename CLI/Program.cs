@@ -1,9 +1,8 @@
 ﻿using CodeKY_SD01.Logic;
 using DataLibrary;
 using Microsoft.Extensions.DependencyInjection;
-
-
-
+using AngelHornetLibrary;
+using AngelHornetLibrary.CLI;
 
 namespace CodeKY_SD01
 {
@@ -31,11 +30,33 @@ namespace CodeKY_SD01
             var orderLogic = services.GetService<IOrderRepository>();
             Console.WriteLine($"Database Path: {productLogic.DbPath}");
             Console.WriteLine($"Contains Data: {productLogic.Seeded}");
-            Console.WriteLine("\n\n");
+            // Console.WriteLine("\n\n");
+
+            Console.WriteLine();
+            Console.WriteLine(AngelHornet.Logo());
+            Console.WriteLine();
 
             string userInput;
             Console.WriteLine("Welcome to our Pet Shop!");
             Console.WriteLine("------------------------");
+
+            // ############################################################################################################
+            // MenuCli System - Work in Progress
+            if (false)
+            {
+                MenuCli mainMenu = new MenuCli();
+                mainMenu.AddItem("List", () => { Console.WriteLine("List"); });
+                mainMenu.AddItem("Detail", () => { Console.WriteLine("Detail"); });
+                mainMenu.AddItem("Add", () => { Console.WriteLine("Add"); });
+                mainMenu.AddItem("InStock", () => { Console.WriteLine("InStock"); });
+                mainMenu.AddItem("Update", () => { Console.WriteLine("Update"); });
+                mainMenu.AddItem("Delete", () => { Console.WriteLine("Delete"); });
+                mainMenu.AddItem(["Quit", "Exit"], () => { mainMenu.Exit(); });
+
+                mainMenu.Loop();
+                Environment.Exit(0);
+            }
+
 
             bool _exitProgram = false;
             string _lastInput = "false";
@@ -62,7 +83,7 @@ namespace CodeKY_SD01
             MenuAddRow(1, "91", "Verbose", "Toggle VerboseSQL Mode.");
             MenuAddRow(0, "92", "Wipe", "delete all Products.");
             MenuAddRow(1, "93", "Wipe", "delete all Orders.");
-            MenuAddRow(0, "94", "Display", "Seed and/or List All Data.");
+            MenuAddRow(0, "94", "SeedDb", "Seed and/or List All Data.");
             MenuAddRow(1, "95", "WipeDb", "Wipe Databases.");
 
             MenuAddRow();
@@ -71,38 +92,6 @@ namespace CodeKY_SD01
 
             do
             {
-                //Console.WriteLine();
-                //               ("1234567890123456789012345678901234567..|..34567890123456789012345678901234567");
-                //               ("-----------------------------------------------------------------------------");
-
-                //Console.WriteLine("Product Commands:                         Orders Commands:");
-                //Console.Write($"{"11: Add      add a product.",-42}");
-                //Console.Write($"{"21: Add      add an order."}\n");
-
-                //Console.Write($"{"12: Find     find product by name or id.",-42}");
-                //Console.Write($"{"22: Find     find order by id."}\n");
-
-                //Console.Write($"{"13: List     list all products.",-42}");
-                //Console.Write($"{"23: List     list all orders."}\n");
-
-                //Console.Write($"{"14: InStock  list in-stock products.",-42}");
-                //Console.Write($"{"24:          unimplemented."}\n");
-
-                //Console.Write($"{"15: Delete   delete product by id.",-42}");
-                //Console.Write($"{"25: Delete   delete order by id."}\n");
-
-                //Console.WriteLine();
-
-                //Console.WriteLine($"{"Test Commands:",-42}");
-                //Console.Write($"{"90: Verbose  Toggle VerboseSQL Mode.",-42}");
-                //Console.Write($"{"91:          Unimplemented."}\n");
-                //Console.Write($"{"92: SeedDb   Add Test Data.",-42}");
-                //Console.Write($"{"93: WipeDb   Wipe Databases."}\n");
-
-
-                //Console.WriteLine();
-                //Console.WriteLine("Type 'exit' to quit.");
-
                 Console.WriteLine();
                 MenuDisplay();
 
@@ -289,6 +278,7 @@ namespace CodeKY_SD01
                                                 //stack = new Stack<ProductEntity>(order.Products);
                                                 stack.Pop();
                                                 order.Products = stack.Reverse().ToList();
+                                                order.Products.Remove(lastProduct);
                                             }
                                             break;
                                         } // /Undo
