@@ -3,18 +3,30 @@
 Code Kentucky Software Development Module 10
 
 ## To Do
-* MenuCli.cs
-  * TryParse, ExactMatch, and ContainsMatch
-* Convert to IProductOrderRepository combined single interface and test
-* Part 10b add Unit Testing
+* **In Scope**
+  * Part 10b add Unit Testing
+* **Out of Scope**
+  * Convert to IProductOrderRepository combined single interface and test
+  * ProductUpdate and OrderUpdate
+  * MenuCli.cs
+    * TryParse, ExactMatch, and ContainsMatch
+  * ProductFind and OrderFind 
+    * TryParse, ExactMatch, and ContainsMatch
+  * Clean up Legacy CliLogic.cs.  This will be a major task.
+
+     
 
 ## Known Issues
 * ... 
 
 ## Pet Shop Improved
+Out of scope improvements to the Pet Shop project.  
 * Improved Menu System
 * Additional Menu Options
-* *
+* Product ContainsMatch
+* Products Summary and Details
+* Order Summary and Details
+* Utilities Menu
 
 ## Notes
 #### Use AddScoped or AddSingleton for the ProdcutContext
