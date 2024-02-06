@@ -12,14 +12,16 @@ namespace DataLibrary
 {
     public class ProductRepository : IProductRepository
     {
-        
+        public string ProductInterfaceFilename => "ProductRepository";
+        public string ProductInterfaceFunctionName() => "ProductRepository";
+        public string ProductDbPath => _dbContext.DbPath;
+
         private readonly ProductContext _dbContext;
                 public ProductRepository()
         {
             _dbContext = new ProductContext();
         }
 
-        public string DbPath => _dbContext.DbPath;
         public bool VerboseSQL { get => _dbContext.VerboseSQL; set => _dbContext.VerboseSQL = value; }
         public bool DataExists() => _dbContext.Products.Count() > 0 || _dbContext.Orders.Count() > 0;
 

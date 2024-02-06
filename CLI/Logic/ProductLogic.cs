@@ -11,7 +11,15 @@ namespace CodeKY_SD01.Logic
     {
         private readonly IProductRepository _productRepo;
         private readonly IOrderRepository _orderRepo;
-        public string DbPath { get => _productRepo.DbPath; }
+
+        public string ProductInterfaceFilename => "ProductLogic";
+        public string ProductInterfaceFunctionName()  => "ProductLogic";
+        public string ProductDbPath { get => _productRepo.ProductDbPath; }
+        public string OrderInterfaceFilename => "ProductLogic";
+        public string OrderInterfaceFunctionName() => "ProductLogic";
+        public string OrderDbPath { get => _orderRepo.OrderDbPath; }
+
+
 
         //public ProductLogic(IProductLogic productLogic)
         //{
@@ -23,13 +31,10 @@ namespace CodeKY_SD01.Logic
         //}
         public ProductLogic(IProductRepository productRepository, IOrderRepository orderRepository)
         {
-            Console.WriteLine("ProductLogic: Constructor");
             _productRepo = productRepository;
             _orderRepo = orderRepository;
-            Console.WriteLine(_productRepo.DbPath);
-            ResetDatabase();
         }
-        
+
         public bool DataExists() => _productRepo.DataExists();
 
         public void ResetDatabase() => _productRepo.ResetDatabase();

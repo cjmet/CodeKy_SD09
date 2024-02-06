@@ -10,8 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataLibrary
 {
-    public class OrderRepository : ProductRepository, IOrderRepository
+    public class OrderRepository : IOrderRepository
     {
+        public string OrderInterfaceFilename => "OrderRepository";
+        public string OrderInterfaceFunctionName() => "OrderRepository";
+        public string OrderDbPath => _dbContext.DbPath;
 
         private readonly ProductContext _dbContext;
         public OrderRepository()

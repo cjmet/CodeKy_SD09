@@ -20,9 +20,10 @@ namespace CodeKY_SD01
             // This results in different instances of the ProductContext being used.
             // which means different contexts for products and orders depending on which repository loaded them.
             return new ServiceCollection()
-                .AddTransient<IProductLogic, ProductOrderRepository>()
-                //.AddTransient<IProductRepository, ProductRepository>()
-                //.AddTransient<IOrderRepository, OrderRepository>()
+                //.AddTransient<IProductLogic, ProductOrderRepository>()    // cjm - Single Combined Interface
+                .AddTransient<IProductLogic, ProductLogic>()                // - Product Logic <-> (Product Repository, Order Repository)
+                .AddTransient<IProductRepository, ProductRepository>()      // - Product Logic <-> (Product Repository, Order Repository)
+                .AddTransient<IOrderRepository, OrderRepository>()          // - Product Logic <-> (Product Repository, Order Repository)
                 .BuildServiceProvider();
         }
 
@@ -30,16 +31,23 @@ namespace CodeKY_SD01
         {
 
             var services = CreateServiceCollection();
-            //var productLogic = services.GetService<IProductRepository>();
-            //var orderLogic = services.GetService<IOrderRepository>();
-            var productLogic = services.GetService<IProductLogic>();
-            Debug.WriteLine($"Database Path: {productLogic.DbPath}");
+            //var productLogic = services.GetService<IProductLogic>();     // cjm - Single Combined Interface
+            var productLogic = services.GetService<IProductRepository>();            // - Product Logic <-> (Product Repository, Order Repository)
+            var orderLogic = services.GetService<IOrderRepository>();           // - Product Logic <-> (Product Repository, Order Repository)
+            
+            Console.WriteLine($"productLogic Name: {productLogic.ProductInterfaceFilename}");
+            Console.WriteLine($"productLogic Func: {productLogic.ProductInterfaceFunctionName()}");
+            Console.WriteLine($"productLogic Path: {productLogic.ProductDbPath}");
 
-            productLogic.ResetDatabase(); // This was for Testing Purposes.  It's not needed now.
+            Console.WriteLine($"orderLogic   Name: {orderLogic.OrderInterfaceFilename}");
+            Console.WriteLine($"orderLogic   Func: {orderLogic.OrderInterfaceFunctionName()}");
+            Console.WriteLine($"orderLogic   Path: {orderLogic.OrderDbPath}");
+
+            productLogic.ResetDatabase(); // This if for Testing Purposes.     // cjm 
             if (productLogic.DataExists())
             {
                 Console.WriteLine("Order Repository Already Contains Data.");
-                Console.WriteLine($"Products: {productLogic.GetAllProducts().Count()}     Orders: {productLogic.GetAllOrders().Count()}");
+                Console.WriteLine($"Products: {productLogic.GetAllProducts().Count()}     Orders: {orderLogic.GetAllOrders().Count()}");
             }
             else
             {
@@ -61,29 +69,29 @@ namespace CodeKY_SD01
                     if (order.Products == null) order.Products = new List<ProductEntity>();
                     order.Products.Add(product1);
                     order.Products.Add(product2);
-                    productLogic.AddOrder(order);
+                    orderLogic.AddOrder(order);
                 }
 
                 product1 = productLogic.GetProductByName("Kitten Chow");
                 product2 = productLogic.GetProductByName("Kittendines");
                 if (product1 != null && product2 != null)
-                    productLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+                    orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
 
                 product1 = productLogic.GetProductByName("Void");
                 product2 = productLogic.GetProductByName("Kuts");
                 if (product1 != null && product2 != null)
-                    productLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+                    orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
 
                 product1 = productLogic.GetProductByName("Bees");
                 product2 = productLogic.GetProductByName("Puppy");
                 if (product1 != null && product2 != null)
-                    productLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+                    orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
             }
              
             PrintDivider();
             PrintProductList(productLogic,true);
             PrintDivider();
-            PrintOrderList(productLogic, true);
+            PrintOrderList(orderLogic, true);
             PrintDivider();
 
             //for (int i = 5; i > 0; i--)
@@ -128,20 +136,20 @@ namespace CodeKY_SD01
 
 
             productMenu.AddItem("List", () =>
-                { CliSwitch(productLogic, productLogic, 13); });
+                { CliSwitch(productLogic, orderLogic, 13); });
             productMenu.AddItem("Detail", () =>
-                { CliSwitch(productLogic, productLogic, 12); });
+                { CliSwitch(productLogic, orderLogic, 12); });
             productMenu.AddItem("InStock", () =>
-                { CliSwitch(productLogic, productLogic, 14); });
+                { CliSwitch(productLogic, orderLogic, 14); });
             productMenu.AddItem("Add", () =>
-                { CliSwitch(productLogic, productLogic, 11); });
+                { CliSwitch(productLogic, orderLogic, 11); });
             productMenu.AddItem("Update", () =>
                 {
                     productMenu.ErrorMsg = "Update is not implemented yet.";
                     productMenu.GetAction(0).Invoke();
                 });
             productMenu.AddItem("Delete", () =>
-                { CliSwitch(productLogic, productLogic, 15); });
+                { CliSwitch(productLogic, orderLogic, 15); });
             productMenu.AddItem(["Back", "Quit", "Exit"], () => { productMenu.Exit(); });
             productMenu.AddDefault(0);
             productMenu.AddOnEntry(0);
@@ -149,23 +157,23 @@ namespace CodeKY_SD01
 
 
             orderMenu.AddItem("List", () =>
-               { CliSwitch(productLogic, productLogic, 23); });
+               { CliSwitch(productLogic, orderLogic, 23); });
             orderMenu.AddItem("Detail", () =>
-               { CliSwitch(productLogic, productLogic, 24); });
+               { CliSwitch(productLogic, orderLogic, 24); });
             orderMenu.AddItem("", () =>
             {
                 orderMenu.ErrorMsg = "Update is not implemented yet.";
                 orderMenu.GetAction(0).Invoke();
             });
             orderMenu.AddItem("Add", () =>
-               { CliSwitch(productLogic, productLogic, 21); });
+               { CliSwitch(productLogic, orderLogic, 21); });
             orderMenu.AddItem("Update", () =>
                 {
                     orderMenu.ErrorMsg = "Update is not implemented yet.";
                     orderMenu.GetAction(0).Invoke();
                 });
             orderMenu.AddItem("Delete", () =>
-               { CliSwitch(productLogic, productLogic, 25); });
+               { CliSwitch(productLogic, orderLogic, 25); });
             orderMenu.AddItem(["Back", "Quit", "Exit"], () => { orderMenu.Exit(); });
             orderMenu.AddDefault(0);
             orderMenu.AddOnEntry(0);
@@ -173,20 +181,20 @@ namespace CodeKY_SD01
 
 
             utilityMenu.AddItem("Display", () =>
-                { CliSwitch(productLogic, productLogic, 90); });
+                { CliSwitch(productLogic, orderLogic, 90); });
             utilityMenu.AddItem("Verbose", () =>
-                { CliSwitch(productLogic, productLogic, 91); });
+                { CliSwitch(productLogic, orderLogic, 91); });
             utilityMenu.AddItem("SeedDb", () =>
                 {
-                    CliSwitch(productLogic, productLogic, 94); utilityMenu.ErrorMsg = "SeedDB will need to be Re-Implemented Differently.";
+                    CliSwitch(productLogic, orderLogic, 94); utilityMenu.ErrorMsg = "SeedDB will need to be Re-Implemented Differently.";
                     utilityMenu.GetAction(0).Invoke();
                 });
             utilityMenu.AddItem("WipeProducts", () =>
-                { CliSwitch(productLogic, productLogic, 92); });
+                { CliSwitch(productLogic, orderLogic, 92); });
             utilityMenu.AddItem("WipeOrders", () =>
-                { CliSwitch(productLogic, productLogic, 93); });
+                { CliSwitch(productLogic, orderLogic, 93); });
             utilityMenu.AddItem("WipeDb", () =>
-                { CliSwitch(productLogic, productLogic, 95); });
+                { CliSwitch(productLogic, orderLogic, 95); });
             utilityMenu.AddItem(["Back", "Quit", "Exit"], () => { utilityMenu.Exit(); });
             utilityMenu.AddDefault(0);
             utilityMenu.AddOnEntry(0);

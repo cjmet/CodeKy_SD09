@@ -18,9 +18,9 @@ namespace CodeKY_SD01
 {
     public static class CliLogic
     {
-        public static void CliSwitch(IProductLogic productLogic, IProductLogic orderLogic, int input)
+        public static void CliSwitch(IProductRepository productLogic, IOrderRepository orderLogic, int input)
         {
-            orderLogic = productLogic; // cjm 
+            //orderLogic = productLogic; // cjm 
             String userInput = input.ToString();
             switch (userInput)
             {
