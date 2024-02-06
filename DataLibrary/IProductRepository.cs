@@ -19,7 +19,7 @@
         public string? Description { get; set; }
         public decimal Price { get; set; }
         public int Quantity { get; set; }
-        public List<OrderEntity> Orders { get; set; } = new();
+        public List<OrderEntity> Orders { get; set; } = new List<OrderEntity>();
     }
 
 
@@ -29,7 +29,6 @@
         public bool VerboseSQL { get; set; }
         public void ResetDatabase();        // Special for DebugDatabaseInit
         public bool DataExists();            // Special for DebugDatabaseInit
-        public void DebugDatabaseInit();    // Special
 
 
         public void AddProduct(ProductEntity product);

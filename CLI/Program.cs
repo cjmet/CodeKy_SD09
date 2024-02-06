@@ -19,10 +19,9 @@ namespace CodeKY_SD01
                 // Using AddTransient means the IProductRepository and IOrderRepository will be different.
                 // This results in different instances of the ProductContext being used.
                 // which means different contexts for products and orders depending on which repository loaded them.
-                .AddScoped<ProductContext>()
                 .AddScoped<IProductLogic, ProductLogic>()
                 .AddScoped<IProductRepository, ProductRepository>()
-                .AddScoped<IOrderRepository, ProductRepository>()
+                .AddScoped<IOrderRepository, OrderRepository>()
                 .BuildServiceProvider();
         }
 
@@ -34,18 +33,57 @@ namespace CodeKY_SD01
             var orderLogic = services.GetService<IOrderRepository>();
             Debug.WriteLine($"Database Path: {productLogic.DbPath}");
 
-            if (!productLogic.DataExists())
+            // productLogic.ResetDatabase(); // This was for Testing Purposes.  It's not needed now.
+            if (productLogic.DataExists())
             {
-                productLogic.DebugDatabaseInit();
-                for (int i = 5; i > 0; i--)
+                Console.WriteLine("Order Repository Already Contains Data.");
+            }
+            else
+            {
+                Console.WriteLine("Adding Test Products.");
+                productLogic.AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65));
+                productLogic.AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65));
+                productLogic.AddProduct(new ProductEntity("Kittendines", "Catfood", "A Delicious Bag of Sardines just for Kittens", 8.87m, 55));
+                productLogic.AddProduct(new ProductEntity("Void's Vittles for Kittens", "Catfood", "An Empty Bag of Kitten Food", 6.66m, 0));
+                productLogic.AddProduct(new ProductEntity("Kitten Kuts", "Catfood", "A Delicious Bag of Choped Steak for Kittens", 19.87m, 5));
+                productLogic.AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5));
+                productLogic.AddProduct(new ProductEntity("Puppy Chow", "Dogfood", "A Delicious Bag of Puppy Chow", 9.87m, 65));
+
+                Console.WriteLine("Adding Test Orders.");
+                var product1 = productLogic.GetProductByName("Puppy");
+                var product2 = productLogic.GetProductByName("Kuts");
+                if (product1 != null && product2 != null)
+                {
+                    OrderEntity order = new OrderEntity();
+                    order.OrderDate = DateTime.Now;
+                    if (order.Products == null) order.Products = new List<ProductEntity>();
+                    order.Products.Add(product1);
+                    order.Products.Add(product2);
+                    orderLogic.AddOrder(order); 
+                }
+
+                product1 = productLogic.GetProductByName("Kitten Chow");
+                product2 = productLogic.GetProductByName("Kittendines");
+                if (product1 != null && product2 != null)
+                    orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } }); 
+
+                product1 = productLogic.GetProductByName("Void");
+                product2 = productLogic.GetProductByName("Kuts");
+                if (product1 != null && product2 != null)
+                    orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+
+                product1 = productLogic.GetProductByName("Bees");
+                product2 = productLogic.GetProductByName("Puppy");
+                if (product1 != null && product2 != null)
+                    orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+
+                for (int i = 3; i > 0; i--)
                 {
                     Console.Write($"\rStarting in {i} seconds...");
                     Task.Delay(1000).Wait();
                 }
                 Console.WriteLine();
             }
-
-
 
             // ###################################################################################################
             // MenuCli System - Work in Progress
@@ -126,7 +164,10 @@ namespace CodeKY_SD01
             utilityMenu.AddItem("Verbose", () =>
                 { CliSwitch(productLogic, orderLogic, 91); });
             utilityMenu.AddItem("SeedDb", () =>
-                { CliSwitch(productLogic, orderLogic, 94); });
+                { 
+                    CliSwitch(productLogic, orderLogic, 94); utilityMenu.ErrorMsg = "SeedDB will need to be Re-Implemented Differently.";
+                    utilityMenu.GetAction(0).Invoke();
+                });
             utilityMenu.AddItem("WipeProducts", () =>
                 { CliSwitch(productLogic, orderLogic, 92); });
             utilityMenu.AddItem("WipeOrders", () =>

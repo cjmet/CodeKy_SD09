@@ -170,7 +170,8 @@ namespace CodeKY_SD01
                             product = null;
                             int productId = 0;
                             Console.WriteLine("Input ProductId or Keyword to add to the order, ");
-                            Console.WriteLine("'Undo' to remove the last item, or <Enter> to Send the Order:");
+                            Console.WriteLine("'Undo' or 'Remove' to delete items from the order");
+                            Console.WriteLine("Press <Enter> to Send the Order:");
                             userInput2 = Console.ReadLine();
                             userInput2 = userInput2.Trim().ToLower();
 
@@ -186,7 +187,7 @@ namespace CodeKY_SD01
                                         // Fixed Below
                                         if (lastProduct != null)
                                         {
-                                            //  ICollection<ProductEntity> tmp;   // cjm
+                                            //  ICollection<ProductEntity> tmp;   
                                             // .Reverse and/or .ToList do not work here. // Several Errors with other methods. 
                                             // and many of those Errors fail to build but don't show up in the Error List.
                                             Stack<ProductEntity> stack = new Stack<ProductEntity>(order.Products);
@@ -223,8 +224,8 @@ namespace CodeKY_SD01
                                         else product = productLogic.GetProductByName(userInput2);
                                         if (product != null)
                                         {
-                                            if (order.Products == null) order.Products = new List<ProductEntity>();
-                                            order.Products.Add(product);
+                                            if (order.Products == null) order.Products = new List<ProductEntity>();  // cjm 
+                                            order.Products.Add(product); 
                                         }
                                         break;
                                     } // /Add Product
@@ -235,11 +236,11 @@ namespace CodeKY_SD01
 
 
                         // Save the order
-                        if (order.Products == null) order.Products = new List<ProductEntity>();
+                        if (order.Products == null) order.Products = new List<ProductEntity>();  // cjm 
                         foreach (var item in order.Products)
                         {
                             if (item.Orders == null) item.Orders = new List<OrderEntity>();
-                            item.Orders.Add(order);
+                            //item.Orders.Add(order); // cjm  // Tracking takes care of this?
                         }
                         if (order.Products.Count > 0)
                         {
@@ -379,7 +380,7 @@ namespace CodeKY_SD01
                 case "94":
                     {
                         Console.Clear();
-                        productLogic.DebugDatabaseInit();
+                        //productLogic.DebugDatabaseInit();
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();

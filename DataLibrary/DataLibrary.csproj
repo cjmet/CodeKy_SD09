@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="OrderRepository.cs" />
+    <Compile Remove="IProductLogic.cs" />
   </ItemGroup>
 
   <ItemGroup>

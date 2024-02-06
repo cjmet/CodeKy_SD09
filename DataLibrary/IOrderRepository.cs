@@ -5,7 +5,7 @@
     {
         public int Id { get; set; }
         public DateTime OrderDate { get; set; }
-        public List<ProductEntity> Products { get; set; } = new();
+        public List<ProductEntity> Products { get; set; } = new List<ProductEntity>();
     }
 
 
