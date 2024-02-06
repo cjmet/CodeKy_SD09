@@ -17,6 +17,8 @@ Code Kentucky Software Development Module 10
 
 ### **Known Issues**
 * Tracking Errors in more complex usage.  
+  * Ex: 1,6,3
+  * Ex: 2,6,4; 2,6,1
 <p>&nbsp;</p>
 
 ### **Pet Shop Improved**
