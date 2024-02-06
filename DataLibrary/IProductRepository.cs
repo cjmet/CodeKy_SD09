@@ -27,8 +27,11 @@
     {
         public string DbPath { get; }
         public bool VerboseSQL { get; set; }
-        public bool Seeded { get; set; }    // Special for DebugDatabaseInit
+        public void ResetDatabase();        // Special for DebugDatabaseInit
+        public bool DataExists();            // Special for DebugDatabaseInit
         public void DebugDatabaseInit();    // Special
+
+
         public void AddProduct(ProductEntity product);
         public void DeleteProduct(int id);
         public void UpdateProduct(ProductEntity product);

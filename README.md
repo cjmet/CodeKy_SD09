@@ -5,6 +5,7 @@ Code Kentucky Software Development Module 10
 ## To Do
 * **In Scope**
   * Part 10b add Unit Testing
+  * ProductLogic(IProductRepository, IOrderRepository), and refactor internals for _productRepository and _orderRepository;   
 * **Out of Scope**
   * Convert to IProductOrderRepository combined single interface and test
   * ProductUpdate and OrderUpdate

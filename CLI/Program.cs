@@ -20,8 +20,9 @@ namespace CodeKY_SD01
                 // This results in different instances of the ProductContext being used.
                 // which means different contexts for products and orders depending on which repository loaded them.
                 .AddScoped<ProductContext>()
-                .AddTransient<IProductRepository, ProductLogic>()
-                .AddTransient<IOrderRepository, ProductLogic>()
+                .AddScoped<IProductLogic, ProductLogic>()
+                .AddScoped<IProductRepository, ProductRepository>()
+                .AddScoped<IOrderRepository, ProductRepository>()
                 .BuildServiceProvider();
         }
 
@@ -32,12 +33,16 @@ namespace CodeKY_SD01
             var productLogic = services.GetService<IProductRepository>();
             var orderLogic = services.GetService<IOrderRepository>();
             Debug.WriteLine($"Database Path: {productLogic.DbPath}");
-            Debug.WriteLine($"Contains Data: {productLogic.Seeded}");
-            if (!productLogic.Seeded)
+
+            if (!productLogic.DataExists())
             {
-                CliSwitch(productLogic, orderLogic, 94);
-                Console.WriteLine("Press <Enter> to Begin.");
-                Console.ReadLine();
+                productLogic.DebugDatabaseInit();
+                for (int i = 5; i > 0; i--)
+                {
+                    Console.Write($"\rStarting in {i} seconds...");
+                    Task.Delay(1000).Wait();
+                }
+                Console.WriteLine();
             }
 
 
@@ -96,7 +101,11 @@ namespace CodeKY_SD01
                { CliSwitch(productLogic, orderLogic, 23); });
             orderMenu.AddItem("Detail", () =>
                { CliSwitch(productLogic, orderLogic, 24); });
-            orderMenu.AddItem("", null);
+            orderMenu.AddItem("", () =>
+            {
+                orderMenu.ErrorMsg = "Update is not implemented yet.";
+                orderMenu.GetAction(0).Invoke();
+            });
             orderMenu.AddItem("Add", () =>
                { CliSwitch(productLogic, orderLogic, 21); });
             orderMenu.AddItem("Update", () =>

@@ -11,8 +11,6 @@
 
     public interface IOrderRepository
     {
-        public string DbPath { get; }
-        public bool VerboseSQL { get; set; }
         public void AddOrder(OrderEntity order);
         public void AddProductToOrder(int orderId, int productId);
         public void RemoveProductFromOrder(int orderId, int productId);

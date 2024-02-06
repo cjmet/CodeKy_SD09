@@ -11,6 +11,11 @@ namespace DataLibrary
         public string DbPath { get; private set; }
         public bool VerboseSQL { get; set; } = false;
 
+        public void ResetDatabase()
+        {
+            Database.EnsureDeleted();
+            Database.EnsureCreated();
+        }
         private void ConsoleLog(string logMessage)
         {
             if (VerboseSQL)
@@ -39,19 +44,6 @@ namespace DataLibrary
             var path = Environment.GetFolderPath(folder);
             DbPath = Path.Join(path, "product.db");
         }
-
-        // This wasn't needed after all
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<ProductEntity>()
-        //        .HasMany(p => p.Orders)
-        //        .WithMany(o => o.Products);
-        //    modelBuilder.Entity<OrderEntity>()
-        //        .HasMany(o => o.Products)
-        //        .WithMany(p => p.Orders);
-        //}
-        // /end of block
-
     }
 
 }

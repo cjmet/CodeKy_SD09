@@ -156,7 +156,7 @@ namespace CodeKY_SD01
 
                         do
                         {
-                            //Console.Clear();
+                            Console.Clear();
                             Console.WriteLine("Adding a new order.\n");
                             // +++++++++++++
                             PrintDivider();
@@ -337,18 +337,23 @@ namespace CodeKY_SD01
                     }
                     break;
                 case "91":
+                    Console.Clear();
                     productLogic.VerboseSQL = !productLogic.VerboseSQL;
                     Console.WriteLine($"VerboseSQL is now {productLogic.VerboseSQL}");
+                    PrintDivider();
+                    PrintProductList(productLogic);
+                    PrintDivider();
+                    PrintOrderList(orderLogic);
                     PrintDivider();
                     break;
                 case "92":
                     {
+                        Console.Clear();
                         var products = productLogic.GetAllProducts().ToList();
                         foreach (var item in products)
                         {
                             productLogic.DeleteProduct(item.Id);
                         }
-                        productLogic.Seeded = false;
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();
@@ -358,12 +363,12 @@ namespace CodeKY_SD01
                     }
                 case "93":  // delete all orders
                     {
+                        Console.Clear();
                         var orders = orderLogic.GetAllOrders().ToList();
                         foreach (var item in orders)
                         {
                             orderLogic.DeleteOrder(item.Id);
                         }
-                        productLogic.Seeded = false;
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();
@@ -384,19 +389,15 @@ namespace CodeKY_SD01
                     }
                 case "95":
                     {
+                        Console.Clear();
                         Console.WriteLine("Wiping the Database.");
-                        Console.WriteLine("To completely RESET the Database, Restart the program now.");
-                        var products = productLogic.GetAllProducts().ToList();
-                        foreach (var item in products)
-                        {
-                            productLogic.DeleteProduct(item.Id);
-                        }
-                        var orders = orderLogic.GetAllOrders().ToList();
-                        foreach (var item in orders)
-                        {
-                            orderLogic.DeleteOrder(item.Id);
-                        }
-                        productLogic.Seeded = false;
+                        //Console.WriteLine("To completely RESET the Database, Restart the program now.");
+                        productLogic.ResetDatabase();
+                        PrintDivider();
+                        PrintProductList(productLogic);
+                        PrintDivider();
+                        PrintOrderList(orderLogic);
+                        PrintDivider();
                         break;
                     }
             }
