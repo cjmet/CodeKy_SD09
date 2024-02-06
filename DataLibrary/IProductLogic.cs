@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Data;
 using DataLibrary;
 
-namespace CodeKY_SD01.Logic
+namespace DataLibrary
 {
     public interface IProductLogic : IProductRepository, IOrderRepository
     {

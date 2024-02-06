@@ -13,6 +13,14 @@ namespace CodeKY_SD01.Logic
         private readonly IOrderRepository _orderRepo;
         public string DbPath { get => _productRepo.DbPath; }
 
+        //public ProductLogic(IProductLogic productLogic)
+        //{
+        //    Console.WriteLine("ProductLogic: Constructor");
+        //    _productRepo = productLogic;
+        //    _orderRepo = productLogic;
+        //    Console.WriteLine(_productRepo.DbPath);
+        //    ResetDatabase();
+        //}
         public ProductLogic(IProductRepository productRepository, IOrderRepository orderRepository)
         {
             Console.WriteLine("ProductLogic: Constructor");
@@ -20,7 +28,6 @@ namespace CodeKY_SD01.Logic
             _orderRepo = orderRepository;
             Console.WriteLine(_productRepo.DbPath);
             ResetDatabase();
-            throw new Exception("We should not be using this constructor any more, with Dependency Injection.");
         }
         
         public bool DataExists() => _productRepo.DataExists();

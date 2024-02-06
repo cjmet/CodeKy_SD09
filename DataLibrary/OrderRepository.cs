@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataLibrary
 {
-    public class OrderRepository : IOrderRepository
+    public class OrderRepository : ProductRepository, IOrderRepository
     {
         
         private readonly ProductContext _dbContext;
@@ -23,7 +23,7 @@ namespace DataLibrary
 
         public void AddOrder(OrderEntity order)
         {
-            //_dbContext.ChangeTracker.Clear();
+            _dbContext.ChangeTracker.Clear();
             Console.WriteLine("Adding Order to Database");
             Console.WriteLine($"Tracking: {_dbContext.Orders.Entry(order).State}");
             Console.WriteLine($"Order ID: {order.Id}");
@@ -40,9 +40,9 @@ namespace DataLibrary
             }
 
             _dbContext.ChangeTracker.Clear();
-            foreach (var product in order.Products)
-                if (_dbContext.Products.Entry(product).State == EntityState.Detached)
-                    _dbContext.Products.Attach(product); // cjm  
+            //foreach (var product in order.Products)
+            //    if (_dbContext.Products.Entry(product).State == EntityState.Detached)
+            //        _dbContext.Products.Attach(product); // cjm  
 
             _dbContext.Orders.Add(order);
             _dbContext.SaveChanges();       // cjm

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CodeKY_SD01.Logic;
+using DataLibrary;
 
 
 // ######################################################
@@ -16,9 +18,9 @@ namespace CodeKY_SD01
 {
     public static class CliLogic
     {
-
-        public static void CliSwitch(IProductRepository? productLogic, IOrderRepository orderLogic, int input)
+        public static void CliSwitch(IProductLogic productLogic, IProductLogic orderLogic, int input)
         {
+            orderLogic = productLogic; // cjm 
             String userInput = input.ToString();
             switch (userInput)
             {
