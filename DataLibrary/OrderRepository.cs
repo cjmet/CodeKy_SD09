@@ -23,9 +23,9 @@ namespace DataLibrary
 
         public void AddOrder(OrderEntity order)
         {
-            _dbContext.ChangeTracker.Clear();
+            //_dbContext.ChangeTracker.Clear();
             Console.WriteLine("Adding Order to Database");
-            Console.WriteLine($"Tracking: {_dbContext.Orders.Entry(order).State}");
+            //Console.WriteLine($"Tracking: {_dbContext.Orders.Entry(order).State}");
             Console.WriteLine($"Order ID: {order.Id}");
             Console.WriteLine($"Order Date: {order.OrderDate}");
             Console.WriteLine($"Order Products: {order.Products.Count}");
@@ -34,18 +34,28 @@ namespace DataLibrary
             foreach (var product in order.Products)
             {
                 Console.WriteLine($"Product ID: {product.Id}");
-                Console.WriteLine($"Tracking: {_dbContext.Products.Entry(product).State}");
+                //Console.WriteLine($"Tracking: {_dbContext.Products.Entry(product).State}");
                 Console.WriteLine($"Product Name: {product.Name}");
                 Console.WriteLine();
             }
 
-            _dbContext.ChangeTracker.Clear();
+            //_dbContext.ChangeTracker.Clear();
             //foreach (var product in order.Products)
             //    if (_dbContext.Products.Entry(product).State == EntityState.Detached)
             //        _dbContext.Products.Attach(product); // cjm  
 
-            _dbContext.Orders.Add(order);
-            _dbContext.SaveChanges();       // cjm
+            OrderEntity tmp = new OrderEntity();
+            tmp.OrderDate = order.OrderDate;
+            _dbContext.Orders.Add(tmp);
+           foreach (var product in order.Products)
+            {
+                _dbContext.Products.Attach(product);
+                tmp.Products.Add(product);
+            }
+           _dbContext.SaveChanges();
+
+            //_dbContext.Orders.Add(order);
+            //_dbContext.SaveChanges();       // cjm
         }
 
         public void DeleteOrder(int id)

@@ -80,7 +80,7 @@ namespace CodeKY_SD01
                 if (product1 != null && product2 != null)
                     productLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
             }
-
+             
             for (int i = 5; i > 0; i--)
             {
                 Console.Write($"\rStarting in {i} seconds...");
