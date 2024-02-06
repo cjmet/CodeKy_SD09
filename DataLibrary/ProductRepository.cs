@@ -19,46 +19,46 @@ namespace DataLibrary
             _dbContext = new ProductContext();
         }
 
-
-
         public string DbPath => _dbContext.DbPath;
-
         public bool VerboseSQL { get => _dbContext.VerboseSQL; set => _dbContext.VerboseSQL = value; }
         public bool DataExists() => _dbContext.Products.Count() > 0 || _dbContext.Orders.Count() > 0;
 
+        
+        
         public void AddProduct(ProductEntity product)
         {
-            foreach (var order in product.Orders)
-                _dbContext.Orders.Attach(order);
+            //foreach (var order in product.Orders)
+            //    _dbContext.Orders.Attach(order);
             _dbContext.Products.Add(product);
             _dbContext.SaveChanges();
         }
+
+        public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.Include(p => p.Orders).AsNoTracking().ToList();
+        //public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.ToList();
+
+
 
         public void DeleteProduct(int id)
         {
             _dbContext.Products.Remove(GetProductById(id));
             _dbContext.SaveChanges();
         }
-   
-        
-        public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.ToList();
-
 
         public IEnumerable<ProductEntity> GetAllProductsByCategory(string category)
         {
             category = category.ToLower();
-            return _dbContext.Products.Where(p => p.Category.ToLower().Contains(category)).Include(p => p.Orders).ToList();
+            return GetAllProducts().Where(p => p.Category.ToLower().Contains(category)).ToList();
         }
 
         public IEnumerable<ProductEntity> GetAllProductsByName(string name)
         {
             name = name.ToLower();
-            return _dbContext.Products.Where(p => p.Name.ToLower().Contains(name)).Include(p => p.Orders).ToList();
+            return GetAllProducts().Where(p => p.Name.ToLower().Contains(name)).ToList();
         }
 
-        public IEnumerable<ProductEntity> GetOnlyInStockProducts() => _dbContext.Products.Where(p => p.Quantity > 0).ToList();
+        public IEnumerable<ProductEntity> GetOnlyInStockProducts() => GetAllProducts().Where(p => p.Quantity > 0).ToList();
 
-        public ProductEntity GetProductById(int id) => _dbContext.Products.Where(p => p.Id == id).Include(p => p.Orders).FirstOrDefault();
+        public ProductEntity GetProductById(int id) => GetAllProducts().Where(p => p.Id == id).FirstOrDefault();
 
         public ProductEntity GetProductByName(string name)
         {

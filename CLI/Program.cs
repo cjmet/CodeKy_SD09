@@ -20,9 +20,9 @@ namespace CodeKY_SD01
             // This results in different instances of the ProductContext being used.
             // which means different contexts for products and orders depending on which repository loaded them.
             return new ServiceCollection()
-                .AddSingleton<IProductLogic, ProductOrderRepository>()
-                //.AddSingleton<IProductRepository, ProductRepository>()
-                //.AddSingleton<IOrderRepository, OrderRepository>()
+                .AddTransient<IProductLogic, ProductOrderRepository>()
+                //.AddTransient<IProductRepository, ProductRepository>()
+                //.AddTransient<IOrderRepository, OrderRepository>()
                 .BuildServiceProvider();
         }
 
@@ -44,7 +44,6 @@ namespace CodeKY_SD01
             else
             {
                 Console.WriteLine("Adding Test Products.");
-                productLogic.AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65));
                 productLogic.AddProduct(new ProductEntity("Kitten Chow", "Catfood", "A Delicious Bag of Kitten Chow", 9.87m, 65));
                 productLogic.AddProduct(new ProductEntity("Kittendines", "Catfood", "A Delicious Bag of Sardines just for Kittens", 8.87m, 55));
                 productLogic.AddProduct(new ProductEntity("Void's Vittles for Kittens", "Catfood", "An Empty Bag of Kitten Food", 6.66m, 0));
@@ -81,12 +80,22 @@ namespace CodeKY_SD01
                     productLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
             }
              
-            for (int i = 5; i > 0; i--)
-            {
-                Console.Write($"\rStarting in {i} seconds...");
-                Task.Delay(1000).Wait();
-            }
-            Console.WriteLine();
+            PrintDivider();
+            PrintProductList(productLogic,true);
+            PrintDivider();
+            PrintOrderList(productLogic, true);
+            PrintDivider();
+
+            //for (int i = 5; i > 0; i--)
+            //{
+            //    Console.Write($"\rStarting in {i} seconds...");
+            //    Task.Delay(1000).Wait();
+            //}
+            //Console.WriteLine();
+
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+
 
 
             // ###################################################################################################

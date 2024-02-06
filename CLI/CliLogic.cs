@@ -416,7 +416,7 @@ namespace CodeKY_SD01
             Console.WriteLine($"{item.Id,3}: {item.Name,-30} - {item.Category,15} - Qty: {item.Quantity,2} - {item.Price:C}");
         }
 
-        static void PrintDivider()
+        public static void PrintDivider()
         {
             //               ("-----------------------------------------------------------------------------");
             Console.WriteLine("=============================================================================");
@@ -449,7 +449,7 @@ namespace CodeKY_SD01
 
 
 
-        static void PrintProductList(IProductRepository? productLogic, bool printDetails = false)
+        public static void PrintProductList(IProductRepository? productLogic, bool printDetails = false)
         {
             var list = productLogic.GetAllProducts().ToList();
             if (list != null && list.Count > 0)
@@ -467,7 +467,7 @@ namespace CodeKY_SD01
         }
 
 
-        static void PrintOrderList(IOrderRepository? orderLogic, bool printDetails = false)
+        public static void PrintOrderList(IOrderRepository? orderLogic, bool printDetails = false)
         {
             // PrintOrderList(orderLogic);
             var list = orderLogic.GetAllOrders().ToList();
