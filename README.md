@@ -1,13 +1,20 @@
 ![Angel Hornet Logo](https://github.com/cjmet/CodeKy_SD09/blob/main/Angel%20Hornet%20Logo.png)
-# CodeKY_SD10
-### Code Kentucky Software Development Module 10
+# CodeKY_SD11
+### Code Kentucky Software Development Module 11
 #### This project is for Educational purposes.
 The goal is to create a simple CLI (and later API and Web) application using Entity Framework Core.  The application will have a simple menu system and will allow the user to add, update?, and delete products and orders.  I will be documenting noteable issues and solutions, both good and bad, as we go along.  This is a learning experience.
 
-Link: https://github.com/cjmet/CodeKy_SD09.git
+### Code Kentucky
+Code Kentucky is a software development bootcamp in Louisville, Kentucky.  The course is designed to teach the fundamentals of software development and to prepare students for a career in the field.  The course is taught by experienced professionals in the field.
+
+https://codekentucky.org/
+
+https://codelouisville.org/
+
+https://code-you.org/
 <p>&nbsp;</p>
 
-* ### Questions
+### Project Questions
   * **Workflow**: Is there a better workflow? 
     * Currently using ClearTracking after Add, Update, Delete operations.  
     * start with a null entity and check productList is null then load?
