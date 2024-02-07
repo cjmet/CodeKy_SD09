@@ -6,6 +6,7 @@ using AngelHornetLibrary.CLI;
 using static CodeKY_SD01.CliLogic;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace CodeKY_SD01
 {
@@ -39,8 +40,6 @@ namespace CodeKY_SD01
             //var productLogic = services.GetService<IProductLogic>();          // cjm - Single Combined Interface.  This code branch abandoned.
             var productLogic = services.GetService<IProductRepository>();       // - Product Logic <-> (Product Repository, Order Repository)
             var orderLogic = services.GetService<IOrderRepository>();           // - Product Logic <-> (Product Repository, Order Repository)
-
-            
 
             DatabaseInitandTest(productLogic, orderLogic);
 
@@ -117,7 +116,7 @@ namespace CodeKY_SD01
 
             utilityMenu.AddItem("Display", () =>
             {
-                CliSwitch(productLogic, orderLogic, 90); 
+                CliSwitch(productLogic, orderLogic, 90);
             });
             utilityMenu.AddItem("Verbose", () =>
                 { CliSwitch(productLogic, orderLogic, 91); });
@@ -147,9 +146,9 @@ namespace CodeKY_SD01
 
         private static void DatabaseInitandTest(IProductRepository? productLogic, IOrderRepository? orderLogic)
         {
-            //productLogic.ResetDatabase(); // This if for Testing Purposes.     // cjm 
+            productLogic.ResetDatabase(); // This if for Testing Purposes.     // cjm 
             ProgramInfo(productLogic, orderLogic);
-            
+
             if (productLogic.DataExists())
             {
                 //StartInSeconds(1);
@@ -163,34 +162,64 @@ namespace CodeKY_SD01
                 productLogic.AddProduct(new ProductEntity("Kitten Kuts", "Catfood", "A Delicious Bag of Choped Steak for Kittens", 19.87m, 5));
                 productLogic.AddProduct(new ProductEntity("Bad Boy Bumble Bees", "Catfood", "A Delicious Bag of Dried Bumble Bees.  The Purrfect Snack for your one eyed Pirate Cats", 29.87m, 5));
                 productLogic.AddProduct(new ProductEntity("Puppy Chow", "Dogfood", "A Delicious Bag of Puppy Chow", 9.87m, 65));
+                productLogic.AddProduct(new ProductEntity("PuppyChovies", "Dogfood", "A Delicious Bag of Anchovies just for Puppies", 8.87m, 55));
+                productLogic.SaveChanges();
+
 
                 Console.WriteLine("Adding Test Orders.");
-                var product1 = productLogic.GetProductByName("Puppy");
-                var product2 = productLogic.GetProductByName("Kuts");
-                if (product1 != null && product2 != null)
+                DateTime RandomDate()
                 {
-                    OrderEntity order = new OrderEntity();
-                    order.OrderDate = DateTime.Now;
-                    if (order.Products == null) order.Products = new List<ProductEntity>();
-                    order.Products.Add(product1);
-                    order.Products.Add(product2);
-                    orderLogic.AddOrder(order);
+                    Random rand = new Random();
+                    return DateTime.Now - TimeSpan.FromDays(rand.Next(30))
+                    - TimeSpan.FromHours(rand.Next(24))
+                    - TimeSpan.FromMinutes(rand.Next(60))
+                    - TimeSpan.FromSeconds(rand.Next(30));
                 }
+                Random rand = new Random();
+                OrderEntity? order; 
+                ProductEntity? product1;
+                ProductEntity? product2;
+                // 1234567 10 234567 20 234567 30 234567 40 234567 50 234567 60 234567 70 234567 80 //
+                // In this use case, we are already tracking the products, so we can just add them to the container.
+                order = new OrderEntity();                  // New Container
+                orderLogic.AddOrder(order);                 // Add Container to Tracking
+                order.OrderDate = RandomDate();             // Set Date
+                product1 = productLogic.                    // Get Item - We are already tracking it.
+                    GetProductByName("Kitten Chow");
+                // If Needed Add Tracking Code Here.        // If Not Tracked, add it to tracking.
+                product2 = productLogic.                    // Get Item - We are already tracking it.
+                    GetProductByName("Kittendines");
+                // If Needed Add Tracking Code Here.        // If Not Tracked, add it to tracking.
+                order.Products = new List<ProductEntity>    // Add Tracked Items to Container
+                    { product1, product2 };                 // EF Core automatically tracks all changes.
+                orderLogic.SaveChanges(order);              // Save Container and Items
 
-                product1 = productLogic.GetProductByName("Kitten Chow");
-                product2 = productLogic.GetProductByName("Kittendines");
-                if (product1 != null && product2 != null)
-                    orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+                // Order 2
+                order = new OrderEntity();
+                order.OrderDate = RandomDate();
+                orderLogic.AddOrder(order);     
+                product1 = productLogic.GetProductByName("Puppy");
+                product2 = productLogic.GetProductByName("Kuts");
+                order.Products = new List<ProductEntity> { product1, product2 }; 
+                orderLogic.SaveChanges(order);
 
+                // Order 3
+                order = new OrderEntity();
+                orderLogic.AddOrder(order);
+                order.OrderDate = RandomDate();
                 product1 = productLogic.GetProductByName("Void");
                 product2 = productLogic.GetProductByName("Kuts");
-                if (product1 != null && product2 != null)
-                    orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+                order.Products = new List<ProductEntity> { product1, product2 };
+                orderLogic.SaveChanges(order);
 
+                // Order 4
+                order = new OrderEntity();
+                orderLogic.AddOrder(order);
+                order.OrderDate = RandomDate();
                 product1 = productLogic.GetProductByName("Bees");
                 product2 = productLogic.GetProductByName("Puppy");
-                if (product1 != null && product2 != null)
-                    orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+                order.Products = new List<ProductEntity> { product1, product2 };
+                orderLogic.SaveChanges(order);
 
                 PrintDivider();
                 PrintProductList(productLogic, true);
@@ -198,11 +227,13 @@ namespace CodeKY_SD01
                 PrintOrderList(orderLogic, true);
                 PrintDivider();
 
-                StartInSeconds(5);
+
+                //StartInSeconds(5);
+                Console.WriteLine("Press <Enter> to continue:"); Console.ReadLine();
             }
         }
 
-        static void StartInSeconds (int seconds)
+        static void StartInSeconds(int seconds)
         {
             for (int i = seconds; i > 0; i--)
             {

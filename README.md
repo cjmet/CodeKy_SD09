@@ -113,6 +113,25 @@ Out of Scope improvements to the Pet Shop project.
 * The answer was, ![Doh!](https://github.com/cjmet/CodeKy_SD09/blob/main/doh.gif) 'WE **DO** HAVE TWO CONTEXTS!!!',   And it should only be **ONE** context, Dependency Injected!
   * "_This error is caused by multiple instances of the DbContext being used.  This can be caused by using the same DbContext in multiple repositories.  The solution is to use Dependency Injection to ensure the same instance of the DbContext is used in both repositories.  This can be done by adding the DbContext to the ServiceCollection in the Startup.cs file.  The DbContext can be added as a Singleton or Scoped service.  The DbContext can then be injected into the repositories.  This will ensure the same instance of the DbContext is used in both repositories._"
 * So now lets revert all the effected code to simpler code.  Load everything, and let the change tracker deal with it.  Then see if that works.  Load Everything isn't going to be a good idea at some point, but it should be a simple test.
+  * Remove AsNoTracking.  
+    * In this use case, we are eager loading and tracking everything as soon as possible.  We will only have to explicitly Add, Update, or Remove specific objects as needed. However, everything will be in-memory and tracked, so that's probably not the best idea.  Revise this workflow later for more efficient use.
+  * Remove _dbContext.ChangeTracker.Clear();
+  * We have to be tracking BOTH the Container and the Objects we are working with.
+```
+        // In this use case, we are already tracking the products, so we can just add them to the container.
+        order = new OrderEntity();                  // New Container
+        orderLogic.AddOrder(order);                 // Add Container to get it tracking.
+        product1 = productLogic.                    // Get Item - We are already tracking it.
+            GetProductByName("Kitten Chow");
+        // If Needed Add Tracking Code Here.        // If Not Tracked, add it to tracking.
+        product2 = productLogic.                    // Get Item - We are already tracking it.
+            GetProductByName("Kittendines");
+        // If Needed Add Tracking Code Here.        // If Not Tracked, add it to tracking.
+        order.Products = new List<ProductEntity>    // Add Tracked Items to Container
+            { product1, product2 };                 // EF Core automatically tracks all changes.
+        orderLogic.SaveChanges(order);              // Save Container and Items
+```
+  * Separate Add, Update, Delete from SaveChanges.
 * Then lets try an intermediate approach.  Set the attached data null so we can test if it's loaded.  Null vs Empty.  If null then load as needed.  If empty it's loaded but empty.  
 #### Remove .AddSingleton<ProductContext>()
  * Remove AddSingleton<ProductContext>(), legacy service.  It may have been causing some conflicts.
