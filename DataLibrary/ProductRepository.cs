@@ -16,35 +16,54 @@ namespace DataLibrary
         public string ProductInterfaceFunctionName() => "ProductRepository";
         public string ProductDbPath => _dbContext.DbPath;
 
-        private readonly ProductContext _dbContext;
-                public ProductRepository()
+        private readonly StoreContext _dbContext;
+        
+        public ProductRepository(StoreContext DIContext)
         {
-            _dbContext = new ProductContext();
+            //_dbContext = new ProductContext();
+            _dbContext = DIContext;
+            Console.WriteLine($"Product ContextId: {_dbContext.ContextId}");
         }
 
         public bool VerboseSQL { get => _dbContext.VerboseSQL; set => _dbContext.VerboseSQL = value; }
         public bool DataExists() => _dbContext.Products.Count() > 0 || _dbContext.Orders.Count() > 0;
 
-        
-        
+
+
+        public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.Include(p => p.Orders).AsNoTracking().ToList();
+        //public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.ToList();
+     
         public void AddProduct(ProductEntity product)
         {
             //foreach (var order in product.Orders)
             //    _dbContext.Orders.Attach(order);
             _dbContext.Products.Add(product);
             _dbContext.SaveChanges();
+            _dbContext.ChangeTracker.Clear();
         }
 
-        public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.Include(p => p.Orders).AsNoTracking().ToList();
-        //public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.ToList();
-
-
+        public void UpdateProduct(ProductEntity product)
+        {
+            _dbContext.Products.Update(product);
+            _dbContext.SaveChanges();
+            _dbContext.ChangeTracker.Clear();
+        }
 
         public void DeleteProduct(int id)
         {
             _dbContext.Products.Remove(GetProductById(id));
             _dbContext.SaveChanges();
+            _dbContext.ChangeTracker.Clear();
         }
+
+        public void ResetDatabase()
+        {
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Database.EnsureCreated();
+            //_dbContext.ChangeTracker.Clear();     // She's Dead , Jim.  Surely we don't need to explicitly clear the ChangeTracker after EnsureDeleted();
+        }
+
+
 
         public IEnumerable<ProductEntity> GetAllProductsByCategory(string category)
         {
@@ -68,16 +87,5 @@ namespace DataLibrary
             return GetAllProducts().Where(p => p.Name.ToLower().Contains(name)).FirstOrDefault();
         }
 
-        public void ResetDatabase()
-        {
-            _dbContext.Database.EnsureDeleted();
-            _dbContext.Database.EnsureCreated();
-        }
-
-        public void UpdateProduct(ProductEntity product)
-        {
-            _dbContext.Products.Update(product);
-            _dbContext.SaveChanges();
-        }
     }
 }

@@ -25,7 +25,6 @@ namespace CodeKY_SD01.Logic
         }
 
 
-
         //public ProductLogic(IProductLogic productLogic)
         //{
         //    Console.WriteLine("ProductLogic: Constructor");

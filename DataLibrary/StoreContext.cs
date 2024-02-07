@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DataLibrary
 {
-    public class ProductContext : DbContext
+    public class StoreContext : DbContext
     {
         public DbSet<ProductEntity> Products { get; set; }
         public DbSet<OrderEntity> Orders { get; set; }
@@ -38,11 +38,12 @@ namespace DataLibrary
                     );
         }
 
-        public ProductContext()
+        public StoreContext()
         {
             var folder = Environment.SpecialFolder.LocalApplicationData;
             var path = Environment.GetFolderPath(folder);
             DbPath = Path.Join(path, "product.db");
+            Console.WriteLine($"Store   ContextId: {this.ContextId}");
         }
     }
 
