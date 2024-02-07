@@ -21,6 +21,7 @@ namespace DataLibrary
         {
             //_dbContext = new ProductContext();
             _dbContext = DIContext;
+            Console.WriteLine($"Order   ContextId: {_dbContext.ContextId}");
         }
 
         public string DbPath => _dbContext.DbPath;

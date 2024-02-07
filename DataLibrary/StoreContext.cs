@@ -43,6 +43,7 @@ namespace DataLibrary
             var folder = Environment.SpecialFolder.LocalApplicationData;
             var path = Environment.GetFolderPath(folder);
             DbPath = Path.Join(path, "product.db");
+            Console.WriteLine($"Store   ContextId: {this.ContextId}");
         }
     }
 

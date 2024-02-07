@@ -40,6 +40,8 @@ namespace CodeKY_SD01
             var productLogic = services.GetService<IProductRepository>();       // - Product Logic <-> (Product Repository, Order Repository)
             var orderLogic = services.GetService<IOrderRepository>();           // - Product Logic <-> (Product Repository, Order Repository)
 
+            
+
             DatabaseInitandTest(productLogic, orderLogic);
 
             // ###################################################################################################

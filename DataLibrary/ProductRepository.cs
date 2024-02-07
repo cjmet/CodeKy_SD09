@@ -22,6 +22,7 @@ namespace DataLibrary
         {
             //_dbContext = new ProductContext();
             _dbContext = DIContext;
+            Console.WriteLine($"Product ContextId: {_dbContext.ContextId}");
         }
 
         public bool VerboseSQL { get => _dbContext.VerboseSQL; set => _dbContext.VerboseSQL = value; }
