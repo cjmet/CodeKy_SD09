@@ -3,10 +3,9 @@ using DataLibrary;
 using Microsoft.Extensions.DependencyInjection;
 using AngelHornetLibrary;
 using AngelHornetLibrary.CLI;
-using System.Net.WebSockets;
 using static CodeKY_SD01.CliLogic;
 using System.Diagnostics;
-using System.Runtime.Intrinsics.X86;
+using Microsoft.EntityFrameworkCore;
 
 namespace CodeKY_SD01
 {
@@ -15,15 +14,21 @@ namespace CodeKY_SD01
 
         static IServiceProvider CreateServiceCollection()
         {
+            // When using direct ProductLogic without Dependency Injection, Use AddScoped.
             // Use AddScoped or AddSingleton for the ProdcutContext to ensure the same instance is used for both Interfaces.
             // Using AddTransient means the IProductRepository and IOrderRepository will be different.
             // This results in different instances of the ProductContext being used.
             // which means different contexts for products and orders depending on which repository loaded them.
+
+            //  When using Dependency Injection,  
             return new ServiceCollection()
-                //.AddTransient<IProductLogic, ProductOrderRepository>()    // cjm - Single Combined Interface
-                .AddTransient<IProductLogic, ProductLogic>()                // - Product Logic <-> (Product Repository, Order Repository)
+                //.AddTransient<IProductLogic, ProductOrderRepository>()    // - Single Combined Interface.  This code branch abandoned.
+                //.AddTransient<IProductLogic, ProductLogic>()              // - Product Logic. Direct Version?  Legacy Code.  This code branch abandoned.
                 .AddTransient<IProductRepository, ProductRepository>()      // - Product Logic <-> (Product Repository, Order Repository)
                 .AddTransient<IOrderRepository, OrderRepository>()          // - Product Logic <-> (Product Repository, Order Repository)
+                .AddDbContext<StoreContext>()                               // - Thank you Ernesto Ramos - Need to add the product context to the service collection.
+                                                                            // - May need to be Scoped or Singleton. 
+                                                                            // - .AddDbContext<ProductContext>(ServiceLifetime.Singleton)
                 .BuildServiceProvider();
         }
 
@@ -31,23 +36,121 @@ namespace CodeKY_SD01
         {
 
             var services = CreateServiceCollection();
-            //var productLogic = services.GetService<IProductLogic>();     // cjm - Single Combined Interface
-            var productLogic = services.GetService<IProductRepository>();            // - Product Logic <-> (Product Repository, Order Repository)
+            //var productLogic = services.GetService<IProductLogic>();          // cjm - Single Combined Interface.  This code branch abandoned.
+            var productLogic = services.GetService<IProductRepository>();       // - Product Logic <-> (Product Repository, Order Repository)
             var orderLogic = services.GetService<IOrderRepository>();           // - Product Logic <-> (Product Repository, Order Repository)
+
+            DatabaseInitandTest(productLogic, orderLogic);
+
+            // ###################################################################################################
+            // MenuCli System - Work in Progress
+
+            MenuCli mainMenu = new MenuCli();
+            MenuCli productMenu = new MenuCli();
+            MenuCli orderMenu = new MenuCli();
+            MenuCli utilityMenu = new MenuCli();
+
+            void logo()
+            {
+                Console.Clear();
+                Console.WriteLine($"\n{AngelHornet.Logo()}\n\n");
+                Console.WriteLine("Welcome to our Pet Shop!");
+                Console.WriteLine("------------------------");
+            }
+
+
+            //mainMenu.AddOnEntry(logo);    // Both these syntaxes work.  But lets use the lambda delegate version for consistency.
+            mainMenu.AddOnEntry(() => { logo(); });
+            mainMenu.AddItem("Products", () => { productMenu.Loop(); });
+            mainMenu.AddItem("Orders", () => { orderMenu.Loop(); });
+            mainMenu.AddItem("Utility", () => { utilityMenu.Loop(); });
+            mainMenu.AddItem(["Quit", "Exit"], () => { mainMenu.Exit(); });
+            mainMenu.AddDefault(mainMenu.GetEntryAction());
+
+
+            productMenu.AddItem("List", () =>
+                { CliSwitch(productLogic, orderLogic, 13); });
+            productMenu.AddItem("Detail", () =>
+                { CliSwitch(productLogic, orderLogic, 12); });
+            productMenu.AddItem("InStock", () =>
+                { CliSwitch(productLogic, orderLogic, 14); });
+            productMenu.AddItem("Add", () =>
+                { CliSwitch(productLogic, orderLogic, 11); });
+            productMenu.AddItem("Update", () =>
+            {
+                productMenu.ErrorMsg = "Update is not implemented yet.";
+                productMenu.GetAction(0).Invoke();
+            });
+            productMenu.AddItem("Delete", () =>
+                { CliSwitch(productLogic, orderLogic, 15); });
+            productMenu.AddItem(["Back", "Quit", "Exit"], () => { productMenu.Exit(); });
+            productMenu.AddDefault(0);
+            productMenu.AddOnEntry(0);
+            productMenu.AddOnExit(mainMenu.GetEntryAction());
+
+
+            orderMenu.AddItem("List", () =>
+                { CliSwitch(productLogic, orderLogic, 23); });
+            orderMenu.AddItem("Detail", () =>
+                { CliSwitch(productLogic, orderLogic, 24); });
+            orderMenu.AddItem("", () =>
+            {
+                orderMenu.ErrorMsg = "Update is not implemented yet.";
+                orderMenu.GetAction(0).Invoke();
+            });
+            orderMenu.AddItem("Add", () =>
+                { CliSwitch(productLogic, orderLogic, 21); });
+            orderMenu.AddItem("Update", () =>
+            {
+                orderMenu.ErrorMsg = "Update is not implemented yet.";
+                orderMenu.GetAction(0).Invoke();
+            });
+            orderMenu.AddItem("Delete", () =>
+                { CliSwitch(productLogic, orderLogic, 25); });
+            orderMenu.AddItem(["Back", "Quit", "Exit"], () => { orderMenu.Exit(); });
+            orderMenu.AddDefault(0);
+            orderMenu.AddOnEntry(0);
+            orderMenu.AddOnExit(mainMenu.GetEntryAction());
+
+
+            utilityMenu.AddItem("Display", () =>
+            {
+                CliSwitch(productLogic, orderLogic, 90); 
+            });
+            utilityMenu.AddItem("Verbose", () =>
+                { CliSwitch(productLogic, orderLogic, 91); });
+            utilityMenu.AddItem("SeedDb", () =>
+            {
+                CliSwitch(productLogic, orderLogic, 94); utilityMenu.ErrorMsg = "SeedDB will need to be Re-Implemented Differently.";
+                utilityMenu.GetAction(0).Invoke();
+            });
+            utilityMenu.AddItem("WipeProducts", () =>
+                { CliSwitch(productLogic, orderLogic, 92); });
+            utilityMenu.AddItem("WipeOrders", () =>
+                { CliSwitch(productLogic, orderLogic, 93); });
+            utilityMenu.AddItem("WipeDb", () =>
+                { CliSwitch(productLogic, orderLogic, 95); });
+            utilityMenu.AddItem(["Back", "Quit", "Exit"], () => { utilityMenu.Exit(); });
+            utilityMenu.AddDefault(0);
+            utilityMenu.AddOnEntry(0);
+            utilityMenu.AddOnExit(mainMenu.GetEntryAction());
+
+            mainMenu.Loop();
+            Environment.Exit(0);
+            // /MenuCli System 
+            // ########################################################################
+        }
+
+
+
+        private static void DatabaseInitandTest(IProductRepository? productLogic, IOrderRepository? orderLogic)
+        {
+            //productLogic.ResetDatabase(); // This if for Testing Purposes.     // cjm 
+            ProgramInfo(productLogic, orderLogic);
             
-            Console.WriteLine($"productLogic Name: {productLogic.ProductInterfaceFilename}");
-            Console.WriteLine($"productLogic Func: {productLogic.ProductInterfaceFunctionName()}");
-            Console.WriteLine($"productLogic Path: {productLogic.ProductDbPath}");
-
-            Console.WriteLine($"orderLogic   Name: {orderLogic.OrderInterfaceFilename}");
-            Console.WriteLine($"orderLogic   Func: {orderLogic.OrderInterfaceFunctionName()}");
-            Console.WriteLine($"orderLogic   Path: {orderLogic.OrderDbPath}");
-
-            productLogic.ResetDatabase(); // This if for Testing Purposes.     // cjm 
             if (productLogic.DataExists())
             {
-                Console.WriteLine("Order Repository Already Contains Data.");
-                Console.WriteLine($"Products: {productLogic.GetAllProducts().Count()}     Orders: {orderLogic.GetAllOrders().Count()}");
+                //StartInSeconds(1);
             }
             else
             {
@@ -86,124 +189,25 @@ namespace CodeKY_SD01
                 product2 = productLogic.GetProductByName("Puppy");
                 if (product1 != null && product2 != null)
                     orderLogic.AddOrder(new OrderEntity() { OrderDate = DateTime.Now, Products = { product1, product2 } });
+
+                PrintDivider();
+                PrintProductList(productLogic, true);
+                PrintDivider();
+                PrintOrderList(orderLogic, true);
+                PrintDivider();
+
+                StartInSeconds(5);
             }
-             
-            PrintDivider();
-            PrintProductList(productLogic,true);
-            PrintDivider();
-            PrintOrderList(orderLogic, true);
-            PrintDivider();
+        }
 
-            //for (int i = 5; i > 0; i--)
-            //{
-            //    Console.Write($"\rStarting in {i} seconds...");
-            //    Task.Delay(1000).Wait();
-            //}
-            //Console.WriteLine();
-
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
-
-
-
-            // ###################################################################################################
-            // MenuCli System - Work in Progress
-
-            MenuCli mainMenu = new MenuCli();
-            MenuCli productMenu = new MenuCli();
-            MenuCli orderMenu = new MenuCli();
-            MenuCli utilityMenu = new MenuCli();
-
-            void logo()
+        static void StartInSeconds (int seconds)
+        {
+            for (int i = seconds; i > 0; i--)
             {
-                Console.Clear();
-                Console.WriteLine($"\n{AngelHornet.Logo()}\n\n");
-                Console.WriteLine("Welcome to our Pet Shop!");
-                Console.WriteLine("------------------------");
+                Console.Write($"\rStarting in {i} seconds...");
+                Task.Delay(1000).Wait();
             }
-
-
-            //mainMenu.AddOnEntry(logo);                  // Both these syntaxes work.  But lets use the delegate version for consistency.
-            mainMenu.AddOnEntry(() =>
-            {
-                logo();
-            });   // Both these syntaxes work.
-            mainMenu.AddItem("Products", () => { productMenu.Loop(); });
-            mainMenu.AddItem("Orders", () => { orderMenu.Loop(); });
-            mainMenu.AddItem("Utility", () => { utilityMenu.Loop(); });
-            mainMenu.AddItem(["Quit", "Exit"], () => { mainMenu.Exit(); });
-            mainMenu.AddDefault(mainMenu.GetEntryAction());
-
-
-            productMenu.AddItem("List", () =>
-                { CliSwitch(productLogic, orderLogic, 13); });
-            productMenu.AddItem("Detail", () =>
-                { CliSwitch(productLogic, orderLogic, 12); });
-            productMenu.AddItem("InStock", () =>
-                { CliSwitch(productLogic, orderLogic, 14); });
-            productMenu.AddItem("Add", () =>
-                { CliSwitch(productLogic, orderLogic, 11); });
-            productMenu.AddItem("Update", () =>
-                {
-                    productMenu.ErrorMsg = "Update is not implemented yet.";
-                    productMenu.GetAction(0).Invoke();
-                });
-            productMenu.AddItem("Delete", () =>
-                { CliSwitch(productLogic, orderLogic, 15); });
-            productMenu.AddItem(["Back", "Quit", "Exit"], () => { productMenu.Exit(); });
-            productMenu.AddDefault(0);
-            productMenu.AddOnEntry(0);
-            productMenu.AddOnExit(mainMenu.GetEntryAction());
-
-
-            orderMenu.AddItem("List", () =>
-               { CliSwitch(productLogic, orderLogic, 23); });
-            orderMenu.AddItem("Detail", () =>
-               { CliSwitch(productLogic, orderLogic, 24); });
-            orderMenu.AddItem("", () =>
-            {
-                orderMenu.ErrorMsg = "Update is not implemented yet.";
-                orderMenu.GetAction(0).Invoke();
-            });
-            orderMenu.AddItem("Add", () =>
-               { CliSwitch(productLogic, orderLogic, 21); });
-            orderMenu.AddItem("Update", () =>
-                {
-                    orderMenu.ErrorMsg = "Update is not implemented yet.";
-                    orderMenu.GetAction(0).Invoke();
-                });
-            orderMenu.AddItem("Delete", () =>
-               { CliSwitch(productLogic, orderLogic, 25); });
-            orderMenu.AddItem(["Back", "Quit", "Exit"], () => { orderMenu.Exit(); });
-            orderMenu.AddDefault(0);
-            orderMenu.AddOnEntry(0);
-            orderMenu.AddOnExit(mainMenu.GetEntryAction());
-
-
-            utilityMenu.AddItem("Display", () =>
-                { CliSwitch(productLogic, orderLogic, 90); });
-            utilityMenu.AddItem("Verbose", () =>
-                { CliSwitch(productLogic, orderLogic, 91); });
-            utilityMenu.AddItem("SeedDb", () =>
-                {
-                    CliSwitch(productLogic, orderLogic, 94); utilityMenu.ErrorMsg = "SeedDB will need to be Re-Implemented Differently.";
-                    utilityMenu.GetAction(0).Invoke();
-                });
-            utilityMenu.AddItem("WipeProducts", () =>
-                { CliSwitch(productLogic, orderLogic, 92); });
-            utilityMenu.AddItem("WipeOrders", () =>
-                { CliSwitch(productLogic, orderLogic, 93); });
-            utilityMenu.AddItem("WipeDb", () =>
-                { CliSwitch(productLogic, orderLogic, 95); });
-            utilityMenu.AddItem(["Back", "Quit", "Exit"], () => { utilityMenu.Exit(); });
-            utilityMenu.AddDefault(0);
-            utilityMenu.AddOnEntry(0);
-            utilityMenu.AddOnExit(mainMenu.GetEntryAction());
-
-            mainMenu.Loop();
-            Environment.Exit(0);
-            // /MenuCli System 
-            // ########################################################################
+            Console.WriteLine();
         }
     }
 }

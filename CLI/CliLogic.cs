@@ -330,6 +330,8 @@ namespace CodeKY_SD01
                 case "90":
                     {
                         Console.Clear();
+                        ProgramInfo(productLogic, orderLogic);
+                        Console.WriteLine();
                         Console.WriteLine("Displaying Full Database:");
                         PrintDivider();
                         PrintProductList(productLogic);
@@ -507,6 +509,22 @@ namespace CodeKY_SD01
 
 
 
+        public static void ProgramInfo(IProductRepository? productLogic, IOrderRepository? orderLogic)
+        {
+            Console.WriteLine($"productLogic Name: {productLogic.ProductInterfaceFilename}");
+            Console.WriteLine($"productLogic Func: {productLogic.ProductInterfaceFunctionName()}");
+            Console.WriteLine($"productLogic Path: {productLogic.ProductDbPath}");
+
+            Console.WriteLine($"orderLogic   Name: {orderLogic.OrderInterfaceFilename}");
+            Console.WriteLine($"orderLogic   Func: {orderLogic.OrderInterfaceFunctionName()}");
+            Console.WriteLine($"orderLogic   Path: {orderLogic.OrderDbPath}");
+
+            if (productLogic.DataExists())
+            {
+                Console.WriteLine("Order Repository Already Contains Data.");
+                Console.WriteLine($"Products: {productLogic.GetAllProducts().Count()}     Orders: {orderLogic.GetAllOrders().Count()}");
+            }
+        }
 
 
     }

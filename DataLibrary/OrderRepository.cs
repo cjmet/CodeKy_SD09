@@ -16,15 +16,19 @@ namespace DataLibrary
         public string OrderInterfaceFunctionName() => "OrderRepository";
         public string OrderDbPath => _dbContext.DbPath;
 
-        private readonly ProductContext _dbContext;
-        public OrderRepository()
+        private readonly StoreContext _dbContext;
+        public OrderRepository(StoreContext DIContext)
         {
-            _dbContext = new ProductContext();
+            //_dbContext = new ProductContext();
+            _dbContext = DIContext;
         }
 
         public string DbPath => _dbContext.DbPath;
 
 
+
+        public IEnumerable<OrderEntity> GetAllOrders() => _dbContext.Orders.Include(o => o.Products).AsNoTracking().ToList();
+        //public IEnumerable<OrderEntity> GetAllOrders() => _dbContext.Orders.ToList();
 
         public void AddOrder(OrderEntity order)
         {
@@ -41,16 +45,27 @@ namespace DataLibrary
             _dbContext.ChangeTracker.Clear();        // cjm 
         }
 
-        public IEnumerable<OrderEntity> GetAllOrders() => _dbContext.Orders.Include(o => o.Products).AsNoTracking().ToList();
-        //public IEnumerable<OrderEntity> GetAllOrders() => _dbContext.Orders.ToList();
-
-
+        public void UpdateOrder(OrderEntity order)
+        {
+            _dbContext.Orders.Update(order);
+            _dbContext.SaveChanges();
+        }
 
         public void DeleteOrder(int id)
         {
             _dbContext.Orders.Remove(GetOrderById(id));
             _dbContext.SaveChanges();
+            _dbContext.ChangeTracker.Clear();
         }
+        public void ResetDatabase()
+        {
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Database.EnsureCreated();
+            //_dbContext.ChangeTracker.Clear();     // She's Dead , Jim.  Surely we don't need to explicitly clear the ChangeTracker after EnsureDeleted();
+        }
+
+
+
 
         public OrderEntity GetOrderById(int id) => GetAllOrders().Where(o => o.Id == id).FirstOrDefault();
 
@@ -58,25 +73,7 @@ namespace DataLibrary
         {
             throw new NotImplementedException();
         }
-
-        public void ResetDatabase()
-        {
-            _dbContext.Database.EnsureDeleted();
-            _dbContext.Database.EnsureCreated();
-        }
-
-        public void UpdateOrder(OrderEntity order)
-        {
-            _dbContext.Orders.Update(order);
-            _dbContext.SaveChanges();
-        }
-
-        public void UpdateProduct(ProductEntity product)
-        {
-            _dbContext.Products.Update(product);
-            _dbContext.SaveChanges();
-        }
-
+        
         public void AddProductToOrder(int orderId, int productId)
         {
             throw new NotImplementedException();
