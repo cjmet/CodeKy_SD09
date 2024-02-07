@@ -43,6 +43,7 @@ namespace CodeKY_SD01
                         // Results
                         Console.Clear();
                         productLogic.AddProduct(product);
+                        productLogic.SaveChanges(); 
                         if (product.Id > 0)
                             Console.WriteLine("Product Added.");
                         else
@@ -133,7 +134,12 @@ namespace CodeKY_SD01
                         if (int.TryParse(userInput2, out int id) && productLogic.GetProductById(id) != null)
                         {
                             productLogic.DeleteProduct(id);
-                            Console.WriteLine($"Product with id {id} has been deleted.");
+                            productLogic.SaveChanges();
+                            if (productLogic.GetProductById(id) == null)
+                                Console.WriteLine($"Product with id {id} has been deleted.");
+                            else 
+                                Console.WriteLine($"Product with id {id} has NOT been deleted.");
+
                         }
                         else
                         {
@@ -149,6 +155,7 @@ namespace CodeKY_SD01
                 case "21":
                     {
                         OrderEntity order = new OrderEntity();
+                        orderLogic.AddOrder(order);
                         order.OrderDate = DateTime.Now;
                         order.Products = new List<ProductEntity>();
 
@@ -246,7 +253,7 @@ namespace CodeKY_SD01
                         }
                         if (order.Products.Count > 0)
                         {
-                            orderLogic.AddOrder(order);
+                            orderLogic.SaveChanges(order);
                         }
                         if (order.Id > 0)
                             Console.WriteLine("Order Added.");
@@ -312,7 +319,11 @@ namespace CodeKY_SD01
                         if (int.TryParse(userInput2, out int id) && orderLogic.GetOrderById(id) != null)
                         {
                             orderLogic.DeleteOrder(id);
-                            Console.WriteLine($"Order with id {id} has been deleted.");
+                            orderLogic.SaveChanges();
+                            if (orderLogic.GetOrderById(id) == null)
+                                Console.WriteLine($"Order with id {id} has been deleted.");
+                            else
+                                Console.WriteLine($"Order with id {id} has NOT been deleted.");
                         }
                         else
                         {
@@ -330,6 +341,8 @@ namespace CodeKY_SD01
                 case "90":
                     {
                         Console.Clear();
+                        ProgramInfo(productLogic, orderLogic);
+                        Console.WriteLine();
                         Console.WriteLine("Displaying Full Database:");
                         PrintDivider();
                         PrintProductList(productLogic);
@@ -507,6 +520,22 @@ namespace CodeKY_SD01
 
 
 
+        public static void ProgramInfo(IProductRepository? productLogic, IOrderRepository? orderLogic)
+        {
+            Console.WriteLine($"productLogic Name: {productLogic.ProductInterfaceFilename}");
+            Console.WriteLine($"productLogic Func: {productLogic.ProductInterfaceFunctionName()}");
+            Console.WriteLine($"productLogic Path: {productLogic.ProductDbPath}");
+
+            Console.WriteLine($"orderLogic   Name: {orderLogic.OrderInterfaceFilename}");
+            Console.WriteLine($"orderLogic   Func: {orderLogic.OrderInterfaceFunctionName()}");
+            Console.WriteLine($"orderLogic   Path: {orderLogic.OrderDbPath}");
+
+            if (productLogic.DataExists())
+            {
+                Console.WriteLine("Order Repository Already Contains Data.");
+                Console.WriteLine($"Products: {productLogic.GetAllProducts().Count()}     Orders: {orderLogic.GetAllOrders().Count()}");
+            }
+        }
 
 
     }

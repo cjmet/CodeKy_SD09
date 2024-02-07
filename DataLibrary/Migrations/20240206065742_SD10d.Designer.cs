@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DataLibrary.Migrations
 {
-    [DbContext(typeof(ProductContext))]
+    [DbContext(typeof(StoreContext))]
     [Migration("20240206065742_SD10d")]
     partial class SD10d
     {
