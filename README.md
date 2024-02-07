@@ -110,7 +110,7 @@ Out of Scope improvements to the Pet Shop project.
 ```
 * I kept thinking 'we have two contexts competing'.  I didn't know why, or how, or what even defines a context, or different context.  But one context was pulling products while the other pulled orders.  
   * How do we coordinate this?  There has to be a way?  And this probably will still be relevant in the future.
-* The answer was, 'WE **DO** HAVE TWO CONTEXTS!!!'  It should only be **ONE** context, injected!
+* The answer was, ![Doh!](https://github.com/cjmet/CodeKy_SD09/blob/main/doh.gif) 'WE **DO** HAVE TWO CONTEXTS!!!',   And it should only be **ONE** context, Dependency Injected!
   * "_This error is caused by multiple instances of the DbContext being used.  This can be caused by using the same DbContext in multiple repositories.  The solution is to use Dependency Injection to ensure the same instance of the DbContext is used in both repositories.  This can be done by adding the DbContext to the ServiceCollection in the Startup.cs file.  The DbContext can be added as a Singleton or Scoped service.  The DbContext can then be injected into the repositories.  This will ensure the same instance of the DbContext is used in both repositories._"
 * So now lets revert all the effected code to simpler code.  Load everything, and let the change tracker deal with it.  Then see if that works.  Load Everything isn't going to be a good idea at some point, but it should be a simple test.
 * Then lets try an intermediate approach.  Set the attached data null so we can test if it's loaded.  Null vs Empty.  If null then load as needed.  If empty it's loaded but empty.  
