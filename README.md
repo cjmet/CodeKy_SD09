@@ -4,6 +4,9 @@
 #### This project is for Educational purposes.
 The goal is to create a simple CLI (and later API and Web) application using Entity Framework Core.  The application will have a simple menu system and will allow the user to add, update?, and delete products and orders.  I will be documenting noteable issues and solutions, both good and bad, as we go along.  This is a learning experience.
 
+**See Also:** https://github.com/cjmet/AngelHornetLibrary
+<p>&nbsp;</p>
+
 ### Code Kentucky
 Code Kentucky is a software development bootcamp in Louisville, Kentucky.  The course is designed to teach the fundamentals of software development and to prepare students for a career in the field.  The course is taught by experienced professionals in the field.
 
@@ -108,5 +111,5 @@ Out of Scope improvements to the Pet Shop project.
  * List.Remove() will remove the first instance of the object in the list.  If you want to remove the last instance, you can use a List.Reverse().  If List.Reverse() fails, you can use Stack() with List.Remove or Stack.Pop() instead.
 <p>&nbsp;</p>
 
-###### Ascii Art and Angel Hornet Logo are (c) All Rights Reserved.  Everything else is GPL 3
+###### Ascii Art and Angel Hornet Logo are (c) All Rights Reserved.  Everything else is GPL 3.0.
  
