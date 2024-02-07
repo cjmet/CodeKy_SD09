@@ -106,5 +106,7 @@ Out of Scope improvements to the Pet Shop project.
  * You may alternatively want to create and use a combined single interface.  Aka: IProductOrder
  #### Use a Stack() when List.Reverse() fails
  * List.Remove() will remove the first instance of the object in the list.  If you want to remove the last instance, you can use a List.Reverse().  If List.Reverse() fails, you can use Stack() with List.Remove or Stack.Pop() instead.
+<p>&nbsp;</p>
 
+###### Ascii Art and Angel Hornet Logo are (c) All Rights Reserved.  Everything else is GPL 3
  
