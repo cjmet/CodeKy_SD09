@@ -30,37 +30,30 @@ namespace DataLibrary
 
 
 
-        public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.Include(p => p.Orders).AsNoTracking().ToList();
+        public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.Include(p => p.Orders).ToList();
         //public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.ToList();
      
         public void AddProduct(ProductEntity product)
         {
-            //foreach (var order in product.Orders)
-            //    _dbContext.Orders.Attach(order);
             _dbContext.Products.Add(product);
-            _dbContext.SaveChanges();
-            _dbContext.ChangeTracker.Clear();
         }
 
         public void UpdateProduct(ProductEntity product)
         {
             _dbContext.Products.Update(product);
-            _dbContext.SaveChanges();
-            _dbContext.ChangeTracker.Clear();
         }
 
         public void DeleteProduct(int id)
         {
             _dbContext.Products.Remove(GetProductById(id));
-            _dbContext.SaveChanges();
-            _dbContext.ChangeTracker.Clear();
         }
+
+        public void SaveChanges(Object? o = null) => _dbContext.SaveChanges();  
 
         public void ResetDatabase()
         {
             _dbContext.Database.EnsureDeleted();
             _dbContext.Database.EnsureCreated();
-            //_dbContext.ChangeTracker.Clear();     // She's Dead , Jim.  Surely we don't need to explicitly clear the ChangeTracker after EnsureDeleted();
         }
 
 

@@ -13,7 +13,7 @@
         public void AddProduct(ProductEntity product);
         public void DeleteProduct(int id);
         public void UpdateProduct(ProductEntity product);
-        // public void SaveChanges();       // A separate method for saving changes is probably the best practice
+        public void SaveChanges(Object o = null);       // A separate method for saving changes is probably the best practice
         public ProductEntity GetProductById(int id);
         public ProductEntity GetProductByName(string name);
         public IEnumerable<ProductEntity> GetAllProducts();

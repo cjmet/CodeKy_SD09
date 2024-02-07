@@ -28,41 +28,30 @@ namespace DataLibrary
 
 
 
-        public IEnumerable<OrderEntity> GetAllOrders() => _dbContext.Orders.Include(o => o.Products).AsNoTracking().ToList();
+        public IEnumerable<OrderEntity> GetAllOrders() => _dbContext.Orders.Include(o => o.Products).ToList();
         //public IEnumerable<OrderEntity> GetAllOrders() => _dbContext.Orders.ToList();
 
         public void AddOrder(OrderEntity order)
         {
-            _dbContext.ChangeTracker.Clear();
-            OrderEntity tmp = new OrderEntity();
-            tmp.OrderDate = order.OrderDate;
-            _dbContext.Orders.Add(tmp);
-            foreach (var product in order.Products)
-            {
-                _dbContext.Products.Attach(product); // cjm
-                tmp.Products.Add(product);             
-            }
-            _dbContext.SaveChanges();
-            _dbContext.ChangeTracker.Clear();        // cjm 
+            _dbContext.Orders.Add(order);
         }
 
         public void UpdateOrder(OrderEntity order)
         {
             _dbContext.Orders.Update(order);
-            _dbContext.SaveChanges();
         }
 
         public void DeleteOrder(int id)
         {
             _dbContext.Orders.Remove(GetOrderById(id));
-            _dbContext.SaveChanges();
-            _dbContext.ChangeTracker.Clear();
         }
+
+        public void SaveChanges(Object? o = null) => _dbContext.SaveChanges();  
+
         public void ResetDatabase()
         {
             _dbContext.Database.EnsureDeleted();
             _dbContext.Database.EnsureCreated();
-            //_dbContext.ChangeTracker.Clear();     // She's Dead , Jim.  Surely we don't need to explicitly clear the ChangeTracker after EnsureDeleted();
         }
 
 

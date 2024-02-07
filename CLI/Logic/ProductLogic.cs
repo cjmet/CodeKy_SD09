@@ -117,5 +117,14 @@ namespace CodeKY_SD01.Logic
 
         public IEnumerable<OrderEntity> GetAllOrders() => _orderRepo.GetAllOrders();
 
+        void IProductRepository.SaveChanges(Object? o = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IOrderRepository.SaveChanges(Object? o = null)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
