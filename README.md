@@ -18,6 +18,8 @@ https://code-you.org/
 <p>&nbsp;</p>
 
 ### Project Questions
+  * How do I add a Qty to the OrderProduct Merge Table?  Is this a good idea?
+  * Struct OrderLineItem { Id, Product, LinePrice, LineQty, LineCost } ?
   * **Workflow**: Is there a better workflow? 
     * Currently using ClearTracking after Add, Update, Delete operations.  
     * start with a null entity and check productList is null then load?
