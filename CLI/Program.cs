@@ -1,18 +1,20 @@
-﻿using CodeKY_SD01.Logic;
-using DataLibrary;
+﻿using DataLibrary;
 using Microsoft.Extensions.DependencyInjection;
+
 using AngelHornetLibrary;
 using AngelHornetLibrary.CLI;
+using static AngelHornetLibrary.CLI.CliMenu;
+using static AngelHornetLibrary.CLI.CliSystem;
+
 using static CodeKY_SD01.CliLogic;
-using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+
+
 
 namespace CodeKY_SD01
 {
     internal class Program
     {
-
         static IServiceProvider CreateServiceCollection()
         {
             // When using direct ProductLogic without Dependency Injection, Use AddScoped.
@@ -33,11 +35,14 @@ namespace CodeKY_SD01
                 .BuildServiceProvider();
         }
 
+
+        //public static int IdToUpdate { get; set; } = -1;
+        //public static ProductEntity productEntityToUpdate { get; set; } = null;
         static void Main(string[] args)
         {
 
             var services = CreateServiceCollection();
-            //var productLogic = services.GetService<IProductLogic>();          // cjm - Single Combined Interface.  This code branch abandoned.
+            //var productLogic = services.GetService<IProductLogic>();          // - Single Combined Interface.  This code branch abandoned.
             var productLogic = services.GetService<IProductRepository>();       // - Product Logic <-> (Product Repository, Order Repository)
             var orderLogic = services.GetService<IOrderRepository>();           // - Product Logic <-> (Product Repository, Order Repository)
 
@@ -46,10 +51,12 @@ namespace CodeKY_SD01
             // ###################################################################################################
             // MenuCli System - Work in Progress
 
-            MenuCli mainMenu = new MenuCli();
-            MenuCli productMenu = new MenuCli();
-            MenuCli orderMenu = new MenuCli();
-            MenuCli utilityMenu = new MenuCli();
+            CliMenu mainMenu = new CliMenu();
+            CliMenu productMenu = new CliMenu();
+            CliMenu orderMenu = new CliMenu();
+            CliMenu utilityMenu = new CliMenu();
+            CliMenu productUpdate = new CliMenu();
+            CliMenu orderUpdate = new CliMenu();
 
             void logo()
             {
@@ -60,6 +67,7 @@ namespace CodeKY_SD01
             }
 
 
+            // MAIN MENU
             //mainMenu.AddOnEntry(logo);    // Both these syntaxes work.  But lets use the lambda delegate version for consistency.
             mainMenu.AddOnEntry(() => { logo(); });
             mainMenu.AddItem("Products", () => { productMenu.Loop(); });
@@ -67,8 +75,11 @@ namespace CodeKY_SD01
             mainMenu.AddItem("Utility", () => { utilityMenu.Loop(); });
             mainMenu.AddItem(["Quit", "Exit"], () => { mainMenu.Exit(); });
             mainMenu.AddDefault(mainMenu.GetEntryAction());
+            
 
-
+            // PRODUCT MENU
+            //public static int productToUpdate { get; set; } 
+            ProductEntity productEntityToUpdate = null;
             productMenu.AddItem("List", () =>
                 { CliSwitch(productLogic, orderLogic, 13); });
             productMenu.AddItem("Detail", () =>
@@ -79,7 +90,9 @@ namespace CodeKY_SD01
                 { CliSwitch(productLogic, orderLogic, 11); });
             productMenu.AddItem("Update", () =>
             {
-                productMenu.ErrorMsg = "Update is not implemented yet.";
+                productEntityToUpdate = SelectProduct(productLogic);
+                if (productEntityToUpdate != null)
+                    productUpdate.Loop();
                 productMenu.GetAction(0).Invoke();
             });
             productMenu.AddItem("Delete", () =>
@@ -90,6 +103,9 @@ namespace CodeKY_SD01
             productMenu.AddOnExit(mainMenu.GetEntryAction());
 
 
+            // ORDER MENU
+            // ==========
+            OrderEntity orderEntityToUpdate = null;
             orderMenu.AddItem("List", () =>
                 { CliSwitch(productLogic, orderLogic, 23); });
             orderMenu.AddItem("Detail", () =>
@@ -103,7 +119,9 @@ namespace CodeKY_SD01
                 { CliSwitch(productLogic, orderLogic, 21); });
             orderMenu.AddItem("Update", () =>
             {
-                orderMenu.ErrorMsg = "Update is not implemented yet.";
+                orderEntityToUpdate = SelectOrder(orderLogic);
+                if (orderEntityToUpdate != null)
+                    orderUpdate.Loop();
                 orderMenu.GetAction(0).Invoke();
             });
             orderMenu.AddItem("Delete", () =>
@@ -114,6 +132,8 @@ namespace CodeKY_SD01
             orderMenu.AddOnExit(mainMenu.GetEntryAction());
 
 
+            // UTILITY MENU
+            // ============
             utilityMenu.AddItem("Display", () =>
             {
                 CliSwitch(productLogic, orderLogic, 90);
@@ -122,8 +142,7 @@ namespace CodeKY_SD01
                 { CliSwitch(productLogic, orderLogic, 91); });
             utilityMenu.AddItem("SeedDb", () =>
             {
-                CliSwitch(productLogic, orderLogic, 94); utilityMenu.ErrorMsg = "SeedDB will need to be Re-Implemented Differently.";
-                utilityMenu.GetAction(0).Invoke();
+                CliSwitch(productLogic, orderLogic, 94);
             });
             utilityMenu.AddItem("WipeProducts", () =>
                 { CliSwitch(productLogic, orderLogic, 92); });
@@ -136,6 +155,121 @@ namespace CodeKY_SD01
             utilityMenu.AddOnEntry(0);
             utilityMenu.AddOnExit(mainMenu.GetEntryAction());
 
+
+            // PRODUCT UPDATE MENU
+            // ===================
+            //Name = name;
+            //Category = category;
+            //Description = description;
+            //Price = price;
+            //Quantity = quantity;
+            productUpdate.MenuItemWidth = 18;
+            productUpdate.Message = "Select the Product Field to Update";
+            productUpdate.AddDefault(() =>
+            {
+                Console.Clear();
+                PrintDivider();
+                PrintProductItem(productEntityToUpdate);
+                Console.WriteLine();
+            });
+            Action productReturnAction = productUpdate.GetDefaultAction();
+            productUpdate.AddOnEntry(productUpdate.GetDefaultAction());
+            productUpdate.AddItem("Name", () => {
+                var tmp = CliGetString("Enter the New Name: ");
+                if (tmp != null && tmp != "") productEntityToUpdate.Name = tmp;
+                productReturnAction.Invoke();
+            });
+            productUpdate.AddItem("Category", () =>
+            {
+                var tmp = CliGetString("Enter the New Category: ");
+                if (tmp != null && tmp != "") productEntityToUpdate.Category = tmp;
+                productReturnAction.Invoke();
+            });
+            productUpdate.AddItem("Description", () =>
+            {
+                var tmp = CliGetString("Enter the New Description: ");
+                if (tmp != null && tmp != "") productEntityToUpdate.Description = tmp;
+                productReturnAction.Invoke();
+            });
+            productUpdate.AddItem("Price", () =>
+            {
+                decimal tmp;
+                if(CliGetDecimal("Enter the New Price: ", out tmp)) 
+                    productEntityToUpdate.Price = tmp;
+                productReturnAction.Invoke();
+            });
+            productUpdate.AddItem("Quantity", () =>
+            {
+                int tmp;
+                if (CliGetInt("Enter the New Quantity: ", out tmp));
+                    productEntityToUpdate.Quantity = (int)tmp;
+                productReturnAction.Invoke();
+            });
+            //productUpdate.AddItem("Save Changes", () =>
+            //{
+            //    productLogic.SaveChanges();
+            //    productReturnAction.Invoke();
+            //});
+            productUpdate.AddItem("Save and Exit", () => 
+            { 
+                productLogic.SaveChanges();
+                productUpdate.Exit(); 
+            });
+            productUpdate.AddOnExit(mainMenu.GetEntryAction());
+
+
+            // ORDER UPDATE MENU
+            // =================
+            orderUpdate.MenuItemWidth = 18;
+            orderUpdate.Message = "Select the Order Field to Update";
+                orderUpdate.AddDefault(() =>
+                {
+                Console.Clear();
+                PrintDivider();
+                PrintOrderItem(orderEntityToUpdate,true);
+                Console.WriteLine();
+            });
+            Action orderReturnAction = orderUpdate.GetDefaultAction();
+            orderUpdate.AddOnEntry(orderUpdate.GetDefaultAction());
+            orderUpdate.AddItem("Add Item", () =>
+            {
+                Console.Clear();
+                PrintDivider();
+                PrintProductList(productLogic);
+                PrintDivider();
+                PrintOrderItem(orderEntityToUpdate, true);
+
+                var item = SelectProduct(productLogic);
+                if (item != null)
+                {
+                    orderEntityToUpdate.Products.Add(item);
+                }
+                orderReturnAction.Invoke();
+            });
+            orderUpdate.AddItem("Remove Item", () =>
+            {
+                ProductEntity item = SelectProduct(productLogic);
+                if (item != null)
+                {
+                    int index = orderEntityToUpdate.Products.LastIndexOf(item);
+                    orderEntityToUpdate.Products.RemoveAt(index);
+                }
+                orderReturnAction.Invoke();
+            });
+            orderUpdate.AddItem("Save and Exit", () =>
+            {
+                //orderLogic.UpdateOrder(orderEntityToUpdate);          // cjm 
+                //foreach (var item in orderEntityToUpdate.Products)
+                //{
+                //    productLogic.UpdateProduct(item);
+                //}
+                orderLogic.SaveChanges(orderEntityToUpdate);
+                orderUpdate.Exit();
+            });
+            orderUpdate.AddOnExit(mainMenu.GetEntryAction());
+
+
+
             mainMenu.Loop();
             Environment.Exit(0);
             // /MenuCli System 
@@ -143,10 +277,37 @@ namespace CodeKY_SD01
         }
 
 
-
-        private static void DatabaseInitandTest(IProductRepository? productLogic, IOrderRepository? orderLogic)
+        public static OrderEntity SelectOrder(IOrderRepository orderLogic)
         {
-            productLogic.ResetDatabase(); // This if for Testing Purposes.     // cjm 
+            int id;
+            Console.WriteLine("Enter the Order Id");
+            string input = Console.ReadLine();
+            input = input.Trim().ToLower();
+
+            if (int.TryParse(input, out id))
+                return orderLogic.GetOrderById(id);
+            else
+                return null;
+        }
+
+
+        public static ProductEntity SelectProduct(IProductRepository productLogic)
+        {
+            int id;
+            Console.WriteLine("Enter the Product Id or Name");
+            string input = Console.ReadLine();
+            input = input.Trim().ToLower();
+
+            if (int.TryParse(input, out id))
+                return productLogic.GetProductById(id);
+            else
+                return productLogic.GetProductByName(input);
+        }
+
+
+        public static void DatabaseInitandTest(IProductRepository? productLogic, IOrderRepository? orderLogic)
+        {
+            //productLogic.ResetDatabase(); // This if for Testing Purposes.     
             ProgramInfo(productLogic, orderLogic);
 
             if (productLogic.DataExists())
@@ -176,7 +337,7 @@ namespace CodeKY_SD01
                     - TimeSpan.FromSeconds(rand.Next(30));
                 }
                 Random rand = new Random();
-                OrderEntity? order; 
+                OrderEntity? order;
                 ProductEntity? product1;
                 ProductEntity? product2;
                 // 1234567 10 234567 20 234567 30 234567 40 234567 50 234567 60 234567 70 234567 80 //
@@ -197,10 +358,10 @@ namespace CodeKY_SD01
                 // Order 2
                 order = new OrderEntity();
                 order.OrderDate = RandomDate();
-                orderLogic.AddOrder(order);     
+                orderLogic.AddOrder(order);
                 product1 = productLogic.GetProductByName("Puppy");
                 product2 = productLogic.GetProductByName("Kuts");
-                order.Products = new List<ProductEntity> { product1, product2 }; 
+                order.Products = new List<ProductEntity> { product1, product2 };
                 orderLogic.SaveChanges(order);
 
                 // Order 3
@@ -227,20 +388,9 @@ namespace CodeKY_SD01
                 PrintOrderList(orderLogic, true);
                 PrintDivider();
 
-
-                //StartInSeconds(5);
-                Console.WriteLine("Press <Enter> to continue:"); Console.ReadLine();
+                CliSleep(3, "Starting in ", CliSleepDisplay.Counter);
+                //Console.WriteLine("Press <Enter> to continue:"); Console.ReadLine();
             }
-        }
-
-        static void StartInSeconds(int seconds)
-        {
-            for (int i = seconds; i > 0; i--)
-            {
-                Console.Write($"\rStarting in {i} seconds...");
-                Task.Delay(1000).Wait();
-            }
-            Console.WriteLine();
         }
     }
 }
