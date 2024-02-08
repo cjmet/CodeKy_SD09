@@ -18,6 +18,9 @@ https://code-you.org/
 <p>&nbsp;</p>
 
 ### Project Questions
+  * MapGet( ... ).WithName("GetAllProductEntities").WithOpenApi();
+    * Need more Info on What is WithName() and how do we use it?
+    * Need more info on WithOpenApi() and how do we use it?
   * How do I add a Qty to the OrderProduct Merge Table?  Is this a good idea?
   * Struct OrderLineItem { Id, Product, LinePrice, LineQty, LineCost } ?
   * **Workflow**: Is there a better workflow? 
