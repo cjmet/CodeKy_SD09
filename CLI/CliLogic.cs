@@ -342,7 +342,7 @@ namespace CodeKY_SD01
                         Console.Clear();
                         //ProgramInfo(productLogic, orderLogic);
                         Console.WriteLine();
-                        Console.WriteLine("Displaying Full Database:");
+                        Console.WriteLine("Displaying Compact Database:");
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();
@@ -430,10 +430,10 @@ namespace CodeKY_SD01
                         Console.WriteLine($"{item.Id,3}: {item.Name.PadRight(38).Substring(0,38)} - {item.Category.PadRight(10).Substring(0,10)} - Qty: {item.Quantity,3} - {item.Price,7:C}");
         }
 
-        public static void PrintDivider()
+        public static void PrintDivider(int i = 1)
         {
             //               ("-----------------------------------------------------------------------------");
-            Console.WriteLine("=============================================================================");
+            while (i-->0) Console.WriteLine("=============================================================================");
             Console.WriteLine();
         }
 

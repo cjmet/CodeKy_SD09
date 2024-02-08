@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeKySD09", "CLI\CodeKySD09.csproj", "{5D0746B7-2C91-4866-AF99-D171B38220AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SD10CodeKy", "CLI\SD10CodeKy.csproj", "{5D0746B7-2C91-4866-AF99-D171B38220AF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A4370C17-EC7D-4F27-B5A9-654DC874692A} = {A4370C17-EC7D-4F27-B5A9-654DC874692A}
 	EndProjectSection
@@ -12,7 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataLibrary", "DataLibrary\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AngelHornetLibrary", "..\AngelHornetLibrary\AngelHornetLibrary.csproj", "{A4370C17-EC7D-4F27-B5A9-654DC874692A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSTest1", "MSTest1\MSTest1.csproj", "{92664F04-164B-4B8B-8365-98912419E8EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSTest1", "MSTest1\MSTest1.csproj", "{92664F04-164B-4B8B-8365-98912419E8EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

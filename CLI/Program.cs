@@ -8,6 +8,7 @@ using static AngelHornetLibrary.CLI.CliSystem;
 
 using static CodeKY_SD01.CliLogic;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using System.Diagnostics.Metrics;
 
 
 
@@ -62,7 +63,7 @@ namespace CodeKY_SD01
             {
                 Console.Clear();
                 Console.WriteLine($"\n{AngelHornet.Logo()}\n\n");
-                Console.WriteLine("Welcome to our Pet Shop!");
+                Console.WriteLine("Welcome to our Pet Shop!               SD10");
                 Console.WriteLine("------------------------");
             }
 
@@ -134,9 +135,22 @@ namespace CodeKY_SD01
 
             // UTILITY MENU
             // ============
-            utilityMenu.AddItem("Display", () =>
+            utilityMenu.AddDefault( () =>
             {
                 CliSwitch(productLogic, orderLogic, 90);
+            });
+            utilityMenu.AddItem("Display", () =>
+            {
+                Console.Clear();
+                PrintDivider(2);
+                Console.WriteLine("Displaying Full Database:");
+                ProgramInfo(productLogic, orderLogic);
+                Console.WriteLine();
+                PrintDivider();
+                PrintProductList(productLogic,true);
+                PrintDivider();
+                PrintOrderList(orderLogic,true);
+                PrintDivider();
             });
             utilityMenu.AddItem("Verbose", () =>
                 { CliSwitch(productLogic, orderLogic, 91); });
@@ -151,8 +165,7 @@ namespace CodeKY_SD01
             utilityMenu.AddItem("WipeDb", () =>
                 { CliSwitch(productLogic, orderLogic, 95); });
             utilityMenu.AddItem(["Back", "Quit", "Exit"], () => { utilityMenu.Exit(); });
-            utilityMenu.AddDefault(0);
-            utilityMenu.AddOnEntry(0);
+            utilityMenu.AddOnEntry(utilityMenu.GetDefaultAction());
             utilityMenu.AddOnExit(mainMenu.GetEntryAction());
 
 

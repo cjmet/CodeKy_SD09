@@ -62,17 +62,18 @@ namespace DataLibrary
         //public DbSet<OrderProduct> OrderProducts { get; set; }
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
-            //modelBuilder.Entity<Playlist>()
-            //.HasMany(a => a.Tracks)
-            //.WithMany(a => a.Playlists)
-            //.UsingEntity<PlaylistTrack>(a =>
-            //  a.Property(e => e.Id).ValueGeneratedOnAdd()
+        //modelBuilder.Entity<Playlist>()
+        //.HasMany(a => a.Tracks)
+        //.WithMany(a => a.Playlists)
+        //.UsingEntity<PlaylistTrack>(a =>
+        //  a.Property(e => e.Id).ValueGeneratedOnAdd()
 
-            //modelBuilder.Entity<ProductEntity>()    // cjm - This did not actually help
-            //    .HasMany(a => a.Orders)             // I wanted many to many, but also allow duplicate products in an order
-            //    .WithMany(a => a.Products)
-            //    .UsingEntity<OrderProduct>(a => a.Property(e => e.Id).ValueGeneratedOnAdd());
+        //modelBuilder.Entity<ProductEntity>()    // cjm - This did not actually help - SD10 240208.00
+        //    .HasMany(a => a.Orders)             // I wanted many to many, but also allow duplicate products in an order
+        //    .WithMany(a => a.Products)
+        //    .UsingEntity<OrderProduct>(a => a.Property(e => e.Id).ValueGeneratedOnAdd());
         //}
+
     }
 
 }
