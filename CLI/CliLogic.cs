@@ -20,7 +20,6 @@ namespace CodeKY_SD01
     {
         public static void CliSwitch(IProductRepository productLogic, IOrderRepository orderLogic, int input)
         {
-            //orderLogic = productLogic; // cjm 
             String userInput = input.ToString();
             switch (userInput)
             {
@@ -118,7 +117,7 @@ namespace CodeKY_SD01
                         }
                         else
                         {
-                            Console.WriteLine("Item List is Empty");
+                            Console.WriteLine("Product List is Empty");
                         }
                         break;
                     }
@@ -233,7 +232,7 @@ namespace CodeKY_SD01
                                         else product = productLogic.GetProductByName(userInput2);
                                         if (product != null)
                                         {
-                                            if (order.Products == null) order.Products = new List<ProductEntity>();  // cjm 
+                                            if (order.Products == null) order.Products = new List<ProductEntity>();  
                                             order.Products.Add(product); 
                                         }
                                         break;
@@ -245,11 +244,11 @@ namespace CodeKY_SD01
 
 
                         // Save the order
-                        if (order.Products == null) order.Products = new List<ProductEntity>();  // cjm 
+                        if (order.Products == null) order.Products = new List<ProductEntity>();  
                         foreach (var item in order.Products)
                         {
                             if (item.Orders == null) item.Orders = new List<OrderEntity>();
-                            //item.Orders.Add(order); // cjm  // Tracking takes care of this?
+                            //item.Orders.Add(order); // Tracking takes care of this?
                         }
                         if (order.Products.Count > 0)
                         {
@@ -341,7 +340,7 @@ namespace CodeKY_SD01
                 case "90":
                     {
                         Console.Clear();
-                        ProgramInfo(productLogic, orderLogic);
+                        //ProgramInfo(productLogic, orderLogic);
                         Console.WriteLine();
                         Console.WriteLine("Displaying Full Database:");
                         PrintDivider();
@@ -370,6 +369,7 @@ namespace CodeKY_SD01
                         {
                             productLogic.DeleteProduct(item.Id);
                         }
+                        productLogic.SaveChanges();
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();
@@ -385,6 +385,7 @@ namespace CodeKY_SD01
                         {
                             orderLogic.DeleteOrder(item.Id);
                         }
+                        orderLogic.SaveChanges();
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();
@@ -395,7 +396,7 @@ namespace CodeKY_SD01
                 case "94":
                     {
                         Console.Clear();
-                        //productLogic.DebugDatabaseInit();
+                        Program.DatabaseInitandTest(productLogic, orderLogic);
                         PrintDivider();
                         PrintProductList(productLogic);
                         PrintDivider();
@@ -426,7 +427,7 @@ namespace CodeKY_SD01
 
         public static void PrintProductItem(ProductEntity item)
         {
-            Console.WriteLine($"{item.Id,3}: {item.Name,-30} - {item.Category,15} - Qty: {item.Quantity,2} - {item.Price:C}");
+                        Console.WriteLine($"{item.Id,3}: {item.Name.PadRight(38).Substring(0,38)} - {item.Category.PadRight(10).Substring(0,10)} - Qty: {item.Quantity,3} - {item.Price,7:C}");
         }
 
         public static void PrintDivider()
@@ -475,7 +476,7 @@ namespace CodeKY_SD01
             }
             else
             {
-                Console.WriteLine("Item List is Empty");
+                Console.WriteLine("Product List is Empty");
             }
         }
 
@@ -529,11 +530,13 @@ namespace CodeKY_SD01
             Console.WriteLine($"orderLogic   Name: {orderLogic.OrderInterfaceFilename}");
             Console.WriteLine($"orderLogic   Func: {orderLogic.OrderInterfaceFunctionName()}");
             Console.WriteLine($"orderLogic   Path: {orderLogic.OrderDbPath}");
+            Console.WriteLine();
 
             if (productLogic.DataExists())
             {
                 Console.WriteLine("Order Repository Already Contains Data.");
                 Console.WriteLine($"Products: {productLogic.GetAllProducts().Count()}     Orders: {orderLogic.GetAllOrders().Count()}");
+                Console.WriteLine();
             }
         }
 

@@ -54,6 +54,7 @@ namespace DataLibrary
         {
             _dbContext.Database.EnsureDeleted();
             _dbContext.Database.EnsureCreated();
+            _dbContext.ChangeTracker.Clear();
         }
 
 
