@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLibrary.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20240203071114_SD10")]
-    partial class SD10
+    [Migration("20240208031913_SD10-0207b")]
+    partial class SD100207b
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,22 +61,34 @@ namespace DataLibrary.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("OrderEntityProductEntity", b =>
+            modelBuilder.Entity("DataLibrary.StoreContext+OrderProduct", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("OrdersId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProductId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ProductsId")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("OrdersId", "ProductsId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrdersId");
 
                     b.HasIndex("ProductsId");
 
-                    b.ToTable("OrderEntityProductEntity");
+                    b.ToTable("OrderProducts");
                 });
 
-            modelBuilder.Entity("OrderEntityProductEntity", b =>
+            modelBuilder.Entity("DataLibrary.StoreContext+OrderProduct", b =>
                 {
                     b.HasOne("DataLibrary.OrderEntity", null)
                         .WithMany()
