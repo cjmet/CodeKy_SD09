@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataLibrary.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20240206065358_SD10c")]
-    partial class SD10c
+    [Migration("20240208032112_SD10-0207c")]
+    partial class SD100207c
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

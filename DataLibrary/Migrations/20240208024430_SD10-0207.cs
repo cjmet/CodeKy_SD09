@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataLibrary.Migrations
 {
     /// <inheritdoc />
-    public partial class SD10 : Migration
+    public partial class SD100207 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
