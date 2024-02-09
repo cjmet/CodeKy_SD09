@@ -54,6 +54,10 @@ namespace ConsoleToWebAPI
                     //      /api/OrderEntity
                     //      /api/ProductEntity
                     //      /api/test
+                    //      /api/ProductEntities
+                    //      /api/IProductRepository/GetAllProducts
+                    //      /api/IProductRepository/GetAllProductsWeb
+                    //      /api/IProdcutRepository/GetAllProductsWebAsync
                     // 
                     endpoints.MapGet("/", async context =>
                     {

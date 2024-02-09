@@ -17,7 +17,54 @@ https://codelouisville.org/
 https://code-you.org/
 <p>&nbsp;</p>
 
-### Project Questions
+### Current Questions for Class
+  * Change EVERY method to Async does not appear to be supported? nor intended? 
+    * UpdateAsync: There is no UpdateAsync method in EF Core. This is a workflow issue.  (FindAsync, Retrieve, Update, SendBack, SaveChangesAsync)  
+    * AddAsync: This method is async only to allow special value generators, such as the one used by 'Microsoft.EntityFrameworkCore.Metadata.SqlServerValueGenerationStrategy.SequenceHiLo', to access the database asynchronously. For all other cases the non async method should be used.*
+    * Maybe DbContext.ExecuteUpdateAsync() and DbContext.ExecuteDeleteAsync?
+      * This is inconsistent.
+      * Add(); SaveChangesAsync();
+      * Update(); SaveChangesAsync();
+        * _ExecuteUpdateAsync();_ . . .  With completely different syntax and usage
+      * SaveChangesAsync(); . . . Doesn't even appear to be needed, _**Yet**_, in the WebAPI project.
+      * Remove(); SaveChangesAsync();
+        * _ExecuteDeleteAsync();_ . . . With completely different syntax and usage
+```
+        public async Task UpdateProductAsync(ProductEntity product)
+        {
+            await _dbContext.Products.Where(item => item.Id == product.Id) 
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(item => item.Id, product.Id)
+                    .SetProperty(item => item.Name, product.Name)
+                    .SetProperty(item => item.Category, product.Category)
+                    .SetProperty(item => item.Description, product.Description)
+                    .SetProperty(item => item.Price, product.Price)
+                    .SetProperty(item => item.Quantity, product.Quantity)
+                    .SetProperty(item => item.Orders, product.Orders)
+                );
+        }
+```
+  * Error: response status is 500, Response body, Download System.Text.Json.JsonException: A possible object cycle was detected. 
+    * I fixed this temporarily by creating a GetAllProductsWeb that doesn't include linked orders
+```
+    Error: response status is 500
+
+    Response body
+    Download
+    System.Text.Json.JsonException: A possible object cycle was detected. This can either
+        be due to a cycle or if the object depth is larger than the maximum allowed depth
+        of 64. Consider using ReferenceHandler.Preserve on JsonSerializerOptions to 
+        support cycles. 
+    Path: $.Orders.Products.Orders.Products.Orders.Products.Orders. ... .Products.Orders.Id.
+```
+
+```
+        // This version does not play nice with default controller and web pages.  Probably a config issue we have not learned yet.
+        public IEnumerable<ProductEntity> GetAllProducts() => _dbContext.Products.Include(p => p.Orders).ToList();
+        
+        // rewritten version for the web controller that does not include linked orders.
+        public IEnumerable<ProductEntity> GetAllProductsWeb() => _dbContext.Products.ToList();
+```
   * MapGet( ... ).WithName("GetAllProductEntities").WithOpenApi();
     * Need more Info on What is WithName() and how do we use it?
     * Need more info on WithOpenApi() and how do we use it?
@@ -44,35 +91,26 @@ https://code-you.org/
  ```
  <p>&nbsp;</p>
 
-### **To Do**
-* #### In Scope
-  * SD11 Part 1
-
-* #### Out of Scope
-  * Fix the Utilities Menu
-  * Fill out the rest of the menu options
-  * Test using Full Change Tracking and without dbclearcontext
-    * Now that we fixed the dbcontext issues, and various other typos and issues.
-    * Load all Entities, then the change tracker should be able to do the work, and we only need to savechanges(), without the need for Add, Update, Delete, except where called for explicitly.
-    * Test Intermediate Approach.  Set attached data to null. If null load.  If empty it's loaded but empty.  Text change tracking functionality.
-  * MenuCli.cs
-    * TryParse, ExactMatch, and ContainsMatch
-  * ProductFind and OrderFind 
-    * TryParse, ExactMatch, and ContainsMatch
-  * Clean up Legacy CliLogic.cs.  This will be a major task.   
-<p>&nbsp;</p>
+### **Requirements**
+* SD12 Part 2
 
 ### **Known Issues**
-  * Additional Tracking Errors - Add ClearTracking where needed in both Repositories 
+* ... 
 <p>&nbsp;</p>
 
-### **Fixed Issues**
-  * Multiple Context Errors
-  * Tracking Errors in more complex usage.  
-    * Ex: 1,6,3.  Ex: 2,6,4; 2,6,1.
+### **Hope to Do - Out of Scope**
+* Full Concurrency Support for CLI and WebAPI
+  * Will need to either DbContext.ChangeTracker.Clear between transactions, or otherwise detatch/reattach the context between transaction the say way ASP.Net runs disconnected. Right now I have to purposefully clear the context to force load the concurrently changed data.  Some of the CLI product logic may also have to be changed as a result.
+* Test On-Demand Change Tracking  (This will probably be a requirement for the ASP.Net versions)
+  * Set attached data to null. If null load.  If empty it's loaded but empty.  Test change tracking functionality.
+* MenuCli.cs
+    * TryParse, ExactMatch, and ContainsMatch
+* ProductFind and OrderFind 
+  * TryParse, ExactMatch, and ContainsMatch
+* Clean up Legacy CliLogic.cs.  This will be a major task.  (And will probably never be done.)
 <p>&nbsp;</p>
 
-### **Pet Shop Improved**
+### **Additional Pet Shop Features**
 Out of Scope improvements to the Pet Shop project.  
 * Improved Menu System
 * Additional Menu Options
@@ -82,15 +120,25 @@ Out of Scope improvements to the Pet Shop project.
 * Utilities Menu
 <p>&nbsp;</p>
 
-### **General Notes**
-  * Currently using ClearTracking after Add, Update, Delete operations. Is there a better workflow alternative?
-  * Use the References tag to double check all references to the DbContext (StoreContext).  Make sure there are no duplicates.
-  * **use Dependency Injection in both the ProductRepository and OrderRepository**
+### **General Notes and Blog**
+* Remember to set various Objects to Public when editing them.
+* SD12 - Completed
+  * Added to WebAPI.  I added this separately so that I would not lose CLI functionality.
+  * Added Async Product Methods
+  * Added IProductRepositoryAsync interface and changed IProductRepository to Inherit it.
+    * In hindsight it might have been a better idea to keep them separated. Or to separate them in the future.
+  * Added Partial Concurrency Support for running the CLI and WebAPI simultaneously
+  * Updated ProductLogic.cs, Created and Passed Async Unit Test.
+* Tested using Full Change Tracking and without dbclearcontext. It's working as expected.
+* Fixed multiple DbContext Errors and Issues - Thanks Ernesto
+* Currently using ClearTracking after Add, Update, Delete operations. Is there a better workflow alternative?
+* Use the References tag to double check all references to the DbContext (StoreContext).  Make sure there are no duplicates.
+* **use Dependency Injection in both the ProductRepository and OrderRepository**
     * See the more detailed note below
-  * use MSTest! ... Not NUnit Testing.  
-  * set **Both** Solution Dependencies and Project Dependencies.  It does not always add these automatically.
-  * Make sure an item exists before trying to add it to an order.  Double Check this in things like the database seeding.
-  * static bool IsSeeded has some strange behavior.  Forcing the logic with IF fixed this issue.
+* use MSTest! ... Not NUnit Testing.  
+* set **Both** Solution Dependencies and Project Dependencies.  It does not always add these automatically.
+* Make sure an item exists before trying to add it to an order.  Double Check this in things like the database seeding.
+* static bool IsSeeded has some strange behavior.  Forcing the logic with IF fixed this issue.
 <p>&nbsp;</p>
 
 ### **More Notes**

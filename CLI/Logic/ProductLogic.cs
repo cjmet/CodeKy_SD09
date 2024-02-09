@@ -4,7 +4,6 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace CodeKY_SD01.Logic
 {
     public class ProductLogic : IProductLogic
@@ -126,5 +125,74 @@ namespace CodeKY_SD01.Logic
         {
             throw new NotImplementedException();
         }
+
+        IEnumerable<ProductEntity> IProductRepository.GetAllProductsWeb()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<ProductEntity>> IProductRepository.GetAllProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IProductRepositoryAsync.AddProductAsync(ProductEntity product)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IProductRepositoryAsync.DeleteProductAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IProductRepositoryAsync.DeleteProductAsyncExec(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IProductRepositoryAsync.UpdateProductAsync(ProductEntity product)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IProductRepositoryAsync.SaveChangesAsync(object o)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ProductEntity> GetProductByIdAsync(int id) => _productRepo.GetProductByIdAsync(id);
+
+        Task<ProductEntity> IProductRepositoryAsync.GetProductByNameAsync(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<ProductEntity>> IProductRepositoryAsync.GetAllProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<ProductEntity>> IProductRepositoryAsync.GetAllProductsByCategoryAsync(string category)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<ProductEntity>> IProductRepositoryAsync.GetAllProductsByNameAsync(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IEnumerable<ProductEntity>> IProductRepositoryAsync.GetOnlyInStockProductsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IProductRepository.ClearChangeTracker()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<ProductEntity> GetAllProductsWeb => _productRepo.GetAllProductsWeb();
     }
 }

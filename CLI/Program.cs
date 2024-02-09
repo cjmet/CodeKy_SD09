@@ -154,7 +154,7 @@ namespace CodeKY_SD01
             });
             utilityMenu.AddItem("Verbose", () =>
                 { CliSwitch(productLogic, orderLogic, 91); });
-            utilityMenu.AddItem("SeedDb", () =>
+            utilityMenu.AddItem("Seed/Reload", () =>
             {
                 CliSwitch(productLogic, orderLogic, 94);
             });
@@ -320,6 +320,7 @@ namespace CodeKY_SD01
 
         public static void DatabaseInitandTest(IProductRepository? productLogic, IOrderRepository? orderLogic)
         {
+            productLogic.ClearChangeTracker();
             //productLogic.ResetDatabase(); // This if for Testing Purposes.     
             ProgramInfo(productLogic, orderLogic);
 

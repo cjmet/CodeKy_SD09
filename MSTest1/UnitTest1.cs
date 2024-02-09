@@ -30,5 +30,19 @@ namespace MSTest1
             //Assert
             _productRepositoryMock.Verify(x => x.GetProductById(1), Times.Once);
         }
+
+        [TestMethod]
+        public void GetProductById_CallsRepoAsync()
+        {
+            //Arrange
+            _productRepositoryMock.Setup(x => x.GetProductByIdAsync(1)).ReturnsAsync(new ProductEntity { Id = 1, Name = "test product" });
+
+            //Act
+            _productLogic.GetProductByIdAsync(1);
+
+            //Assert
+            //_productRepositoryMock.Verify(x => x.GetProductById(1), Times.Once);
+        }
+
     }
 }
