@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 
 
@@ -27,7 +28,20 @@ namespace DataLibrary
 
         public bool VerboseSQL { get => _dbContext.VerboseSQL; set => _dbContext.VerboseSQL = value; }
         public void ClearChangeTracker() { _dbContext.ChangeTracker.Clear(); }
-        public bool DataExists() => _dbContext.Products.Count() > 0 || _dbContext.Orders.Count() > 0;
+        public bool DataExists() { 
+            try
+            {
+                _dbContext.Products.FirstOrDefault(); 
+                _dbContext.Orders.FirstOrDefault();
+            } catch (Exception e)
+            {
+                Debug.WriteLine($"ERROR: [{e.HResult}][{e.Message}]");
+                if (e.Message.Contains("no such table")) ResetDatabase();
+                else throw;
+            }
+
+            return _dbContext.Products.Count() > 0 || _dbContext.Orders.Count() > 0; 
+        }
 
 
 

@@ -46,33 +46,11 @@ namespace DataLibrary
             Console.WriteLine($"Store   ContextId: {this.ContextId}");
         }
 
-        //public class PlaylistTrack
-        //{
-        //    public int Id { get; set; }
-        //    public int PlaylistId { get; set; }
-        //    public int TrackId { get; set; }
-        //}
-        //public class OrderProduct
-        //{
-        //    public int Id { get; set; }
-        //    public int OrderId { get; set; }
-        //    public int ProductId { get; set; }
-        //}
-
-        //public DbSet<OrderProduct> OrderProducts { get; set; }
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //modelBuilder.Entity<Playlist>()
-        //.HasMany(a => a.Tracks)
-        //.WithMany(a => a.Playlists)
-        //.UsingEntity<PlaylistTrack>(a =>
-        //  a.Property(e => e.Id).ValueGeneratedOnAdd()
-
         //modelBuilder.Entity<ProductEntity>()    // cjm - This did not actually help - SD10 240208.00
         //    .HasMany(a => a.Orders)             // I wanted many to many, but also allow duplicate products in an order
         //    .WithMany(a => a.Products)
         //    .UsingEntity<OrderProduct>(a => a.Property(e => e.Id).ValueGeneratedOnAdd());
-        //}
+
 
     }
 

@@ -43,7 +43,23 @@ namespace CodeKY_SD01
         {
 
             var services = CreateServiceCollection();
-            //var productLogic = services.GetService<IProductLogic>();          // - Single Combined Interface.  This code branch abandoned.
+
+            //{
+            //    var dbContext = new StoreContext();
+            //    dbContext.Database.EnsureCreated();
+            //    ProductEntity product = new ProductEntity();
+            //    product.Name = "Test Product";
+            //    product.Category = "Test Category";
+            //    product.Description = "Test Description";
+            //    product.Price = 1.23m;
+            //    product.Quantity = 45;
+            //    dbContext.Products.Add(product);
+            //    dbContext.SaveChanges();
+            //    dbContext.Dispose();
+            //    Console.WriteLine("Database Created and Seeded.");
+            //}
+
+
             var productLogic = services.GetService<IProductRepository>();       // - Product Logic <-> (Product Repository, Order Repository)
             var orderLogic = services.GetService<IOrderRepository>();           // - Product Logic <-> (Product Repository, Order Repository)
 
@@ -321,7 +337,7 @@ namespace CodeKY_SD01
         public static void DatabaseInitandTest(IProductRepository? productLogic, IOrderRepository? orderLogic)
         {
             productLogic.ClearChangeTracker();
-            //productLogic.ResetDatabase(); // This if for Testing Purposes.     
+            // productLogic.ResetDatabase(); // This if for Testing Purposes.     
             ProgramInfo(productLogic, orderLogic);
 
             if (productLogic.DataExists())
